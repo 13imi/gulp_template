@@ -4,6 +4,7 @@ var sass = require("gulp-sass");
 var imagemin = require("gulp-imagemin");
 var autoprefixer = require("gulp-autoprefixer");
 var browser = require("browser-sync");
+var plumber = require("gulp-plumber");
 
 const common = {
     fonts: {
@@ -18,20 +19,20 @@ gulp.task("server", function() {
             baseDir: "dest"
         }
     });
+
+
 });
 
 // for html
 gulp.task("html", function() {
-    gulp.src('src/**/*.html')
-        .pipe(gulp.dest('dest'));
+    gulp
+        .src("src/**/*.html")
+        .pipe(gulp.dest("dest"))
 });
 
 // for sass
 gulp.task("sass", function () {
     gulp.src(["src/sass/**/*.scss"], { base: 'src/sass' }) //入力元
-        .pipe(frontnote({
-            css: 'dest/css/style.css'
-        }))
         .pipe(plumber())
         .pipe(sass({
             includePaths: ["bower_components/bootstrap-sass/assets/stylesheets"]
@@ -39,6 +40,12 @@ gulp.task("sass", function () {
         .pipe(autoprefixer())
         .pipe(gulp.dest("dest/css")) //出力先
         .pipe(browser.reload({stream:true}));
+});
+
+// for js
+gulp.task("js", function() {
+    gulp.src(["src/js/*.js"], { base: 'src/js' })
+        .pipe(gulp.dest("dest/js/"));
 });
 
 // for imagemin
