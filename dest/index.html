@@ -1,2 +1,245 @@
-<h1>gulp template</h1>
-aaa
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8"/>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/locale/ja.js"></script>
+  </head>
+
+  <body>
+    <style type="text/css" media="screen">
+     .box29.childbox {
+         margin: 2em 0;
+         background: #fff8e8;
+     }
+
+     .box29.childbox .box-title {
+         font-size: 1em;
+         background: #ffc06e;
+         padding: 4px;
+         text-align: center;
+         color: #FFF;
+         font-weight: bold;
+         letter-spacing: 0.05em;
+     }
+
+     .box29.mamabox {
+         margin: 2em 0;
+         background: #ffebe9;
+     }
+
+     .box29.mamabox .box-title {
+         font-size: 1em;
+         background: #ff7d6e;
+         padding: 4px;
+         text-align: center;
+         color: #FFF;
+         font-weight: bold;
+         letter-spacing: 0.05em;
+     }
+
+     .box29.papabox {
+         margin: 2em 0;
+         background: #dcefff;
+     }
+
+     .box29.papabox .box-title {
+         font-size: 1em;
+         background: #5fb3f5;
+         padding: 4px;
+         text-align: center;
+         color: #FFF;
+         font-weight: bold;
+         letter-spacing: 0.05em;
+     }
+
+     .box29 .box-sub-title {
+         font-weight: bold;
+     }
+
+     .box29 p {
+         text-align: center;
+         padding: 15px 20px;
+         margin: 0;
+     }
+
+     .box29 p:not(:last-child) {
+         border-bottom: 1px #ccc dotted;
+     }
+
+     .box30 {
+         margin: 2em 0;
+         background: #f1f1f1;
+         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.22);
+     }
+     .box30 .box-title {
+         font-size: 1.2em;
+         background: #5fc2f5;
+         padding: 4px;
+         text-align: center;
+         color: #FFF;
+         font-weight: bold;
+         letter-spacing: 0.05em;
+     }
+     .box30 p {
+         padding: 15px 20px;
+         margin: 0;
+     }
+    </style>
+
+    <div class="container-fluid">
+
+      <header>
+        <h1>bootstraptest</h1>
+      </header>
+
+      <article>
+        <div class="row">
+          <div class="col-md-12">
+            <form class="form-horizontal">
+              <div class="form-group">
+                <label for="inputEmail3" class="col-sm-2 control-label">出産予定日</label>
+                <div class="col-sm-10">
+                  <input type="date" class="form-control" data-id="inputBirthday" placeholder="出産予定日">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" data-id="inputTwins"> 双子以上の場合はチェック
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+
+            <div class="box29 childbox">
+              <div class="box-title">出産予定日</div>
+              <p><span data-id="birthDay"></span></p>
+            </div>
+
+            <div class="box29 papabox">
+              <div class="box-title">育児休業期間（パパ）</div>
+              <p><span data-id="papaIkukyuStart"></span> 〜 <span data-id="papaIkukyuEnd"></span></p>
+            </div>
+
+            <div class="box29 mamabox">
+              <div class="box-title">産休・育休期間（ママ）</div>
+              <p>
+                <span class="box-sub-title">産前休業期間</span><br>
+                <span data-id="mamaBeforeSankyuStart"></span> 〜 <span data-id="mamaBeforeSankyuEnd"></span>
+              </p>
+              <p>
+                <span class="box-sub-title">産後休業期間</span><br>
+                <span data-id="mamaAfterSankyuStart"></span> 〜 <span data-id="mamaAfterSankyuEnd"></span>
+              </p>
+              <p>
+                <span class="box-sub-title">育児休業期間</span><br>
+                <span data-id="mamaIkukyuStart"></span> 〜 <span data-id="mamaIkukyuEnd"></span>
+              </p>
+            </div>
+
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th scope="row">出産予定日</th>
+                  <td data-id="birthDay"></td>
+                  <td data-id="">-</td>
+                </tr>
+                <tr>
+                  <th scope="row">育児休業期間（パパ）</th>
+                  <td data-id="papaIkukyuStart"></td>
+                  <td data-id="papaIkukyuEnd"></td>
+                </tr>
+                <tr>
+                  <th scope="row">産前休業期間（ママ）</th>
+                  <td data-id="mamaBeforeSankyuStart"></td>
+                  <td data-id="mamaBeforeSankyuEnd"></td>
+                </tr>
+                <tr>
+                  <th scope="row">産後休業期間（ママ）</th>
+                  <td data-id="mamaAfterSankyuStart"></td>
+                  <td data-id="mamaAfterSankyuEnd"></td>
+                </tr>
+                <tr>
+                  <th scope="row">育児休業期間（ママ）</th>
+                  <td data-id="mamaIkukyuStart"></td>
+                  <td data-id="mamaIkukyuEnd"></td>
+                </tr>
+              </tbody>
+            </table>
+
+
+
+
+          </div>
+        </div>
+      </article>
+
+      <footer>
+      </footer>
+    </div>
+
+    <script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+
+    <script>
+     var inputBirthday = $('[data-id="inputBirthday"]');
+     var inputTwins = $('[data-id="inputTwins"]');
+     var birthDay = $('[data-id="birthDay"]');
+     var papaIkukyuStart = $('[data-id="papaIkukyuStart"]');
+     var papaIkukyuEnd = $('[data-id="papaIkukyuEnd"]');
+     var mamaBeforeSankyuStart = $('[data-id="mamaBeforeSankyuStart"]');
+     var mamaBeforeSankyuEnd = $('[data-id="mamaBeforeSankyuEnd"]');
+     var mamaAfterSankyuStart = $('[data-id="mamaAfterSankyuStart"]');
+     var mamaAfterSankyuEnd = $('[data-id="mamaAfterSankyuEnd"]');
+     var mamaIkukyuStart = $('[data-id="mamaIkukyuStart"]');
+     var mamaIkukyuEnd = $('[data-id="mamaIkukyuEnd"]');
+
+     inputBirthday.on('change', function() {
+         cal();
+     });
+
+     inputTwins.on('change', function() {
+         cal();
+     });
+
+     function cal() {
+         var birthDate = moment(inputBirthday.val());
+         var papaIkukyuStartDate = moment(inputBirthday.val());
+         var papaIkukyuEndDate = moment(inputBirthday.val()).add(1, "y").add(-1, "d");
+
+         if (inputTwins.prop('checked')) {
+             var mamaBeforeSankyuStartDate = moment(inputBirthday.val()).add(-97, "d");
+         } else {
+             var mamaBeforeSankyuStartDate = moment(inputBirthday.val()).add(-41, "d");
+         }
+
+         var mamaAfterSankyuStartDate = moment(inputBirthday.val()).add(1, "d");
+         var mamaAfterSankyuEndDate = moment(inputBirthday.val()).add(56, "d");
+         var mamaIkukyuStartDate = moment(inputBirthday.val()).add(57, "d");
+         var mamaIkukyuEndDate = moment(inputBirthday.val()).add(1, "y").add(-1, "d");
+
+         birthDay.text(birthDate.format("YYYY年M月D日"));
+         papaIkukyuStart.text(papaIkukyuStartDate.format("YYYY年M月D日"));
+         papaIkukyuEnd.text(papaIkukyuEndDate.format("YYYY年MM月D日"));
+         mamaBeforeSankyuStart.text(mamaBeforeSankyuStartDate.format("YYYY年M月D日"));
+         mamaBeforeSankyuEnd.text(birthDate.format("YYYY年M月D日"));
+         mamaAfterSankyuStart.text(mamaAfterSankyuStartDate.format("YYYY年M月D日"));
+         mamaAfterSankyuEnd.text(mamaAfterSankyuEndDate.format("YYYY年M月D日"));
+         mamaIkukyuStart.text(mamaIkukyuStartDate.format("YYYY年MM月D日"));
+         mamaIkukyuEnd.text(mamaIkukyuEndDate.format("YYYY年MM月D日"));
+     }
+
+    </script>
+  </body>
+
+</html>

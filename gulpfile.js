@@ -4,6 +4,8 @@ var sass = require("gulp-sass");
 var imagemin = require("gulp-imagemin");
 var autoprefixer = require("gulp-autoprefixer");
 var browser = require("browser-sync");
+var cleanCSS = require('gulp-clean-css');
+var plumber = require("gulp-plumber");
 
 const common = {
     fonts: {
@@ -26,15 +28,22 @@ gulp.task("html", function() {
         .pipe(gulp.dest('dest'));
 });
 
+// for js
+gulp.task("js", function() {
+    gulp.src('src/js/**/*.js')
+        .pipe(gulp.dest('dest/js'));
+});
+
+
 // for sass
 gulp.task("sass", function () {
     gulp.src(["src/sass/**/*.scss"], { base: 'src/sass' }) //入力元
-        .pipe(frontnote({
-            css: 'dest/css/style.css'
-        }))
+        // .pipe(frontnote({
+            // css: 'dest/css/style.css'
+        // }))
         .pipe(plumber())
         .pipe(sass({
-            includePaths: ["bower_components/bootstrap-sass/assets/stylesheets"]
+            includePaths: ["bower_components/bootstrap/scss"]
         }).on("error", sass.logError))
         .pipe(autoprefixer())
         .pipe(gulp.dest("dest/css")) //出力先
@@ -56,6 +65,17 @@ gulp.task("imagemin", function() {
 gulp.task("fonts", () => {
     gulp.src(common.fonts.src)
         .pipe(gulp.dest(common.fonts.dist));
+});
+
+// bootstrap
+gulp.task("bootstrap", function(){
+    gulp.src("src/sass/bootstrap/bootstrap.scss")
+        .pipe(sass({
+                includePaths: ["bower_components/bootstrap/scss"]
+        }).on('error', sass.logError))
+        .pipe(autoprefixer())
+        .pipe(cleanCSS())
+        .pipe(gulp.dest("./dest/css"));
 });
 
 // Watch

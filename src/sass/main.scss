@@ -1,0 +1,93 @@
+.box29.childbox {
+  margin: 2em 0;
+  background: #fff8e8;
+}
+
+.box29.childbox .box-title {
+  font-size: 1em;
+  background: #ffc06e;
+  padding: 4px;
+  text-align: center;
+  color: #FFF;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.box29.mamabox {
+  margin: 2em 0;
+  background: #ffebe9;
+}
+
+.box29.mamabox .box-title {
+  font-size: 1em;
+  background: #ff7d6e;
+  padding: 4px;
+  text-align: center;
+  color: #FFF;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.box29.papabox {
+  margin: 2em 0;
+  background: #dcefff;
+}
+
+.box29.papabox .box-title {
+  font-size: 1em;
+  background: #5fb3f5;
+  padding: 4px;
+  text-align: center;
+  color: #FFF;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.box29 .box-sub-title {
+  font-weight: bold;
+}
+
+.box29 p {
+  text-align: center;
+  padding: 15px 20px;
+  margin: 0;
+}
+
+.box29 p:not(:last-child) {
+  border-bottom: 1px #ccc dotted;
+}
+
+.box30 {
+  margin: 2em 0;
+  background: #f1f1f1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.22);
+}
+.box30 .box-title {
+  font-size: 1.2em;
+  background: #5fc2f5;
+  padding: 4px;
+  text-align: center;
+  color: #FFF;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+.box30 p {
+  padding: 15px 20px;
+  margin: 0;
+}
+
+#canvas {
+  /* border: 1px dotted gray; */
+}
+
+.chart-container {
+  position: relative;
+  margin: auto;
+  height: 20vh;
+  width: 100%;
+}
+
+.important-data {
+  font-size: x-large;
+  font-weight: bold;
+}
