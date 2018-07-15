@@ -1,3 +1,8 @@
+/* $base-color = ""; */
+/* $main-color: #1BA4C8; */
+@minin gradation {
+  background: linear-gradient(to right, #000046, 1CB5E0); }
+
 .box29.childbox {
   margin: 2em 0;
   background: #fff8e8; }
@@ -25,12 +30,12 @@
   letter-spacing: 0.05em; }
 
 .box29.papabox {
-  margin: 2em 0;
-  background: #dcefff; }
+  margin: 1em 0;
+  background: #D2F4F7; }
 
 .box29.papabox .box-title {
   font-size: 1em;
-  background: #5fb3f5;
+  background: #0E4EAD;
   padding: 4px;
   text-align: center;
   color: #FFF;
@@ -66,15 +71,71 @@
   padding: 15px 20px;
   margin: 0; }
 
-#canvas {
-  /* border: 1px dotted gray; */ }
-
-.chart-container {
-  position: relative;
-  margin: auto;
-  height: 20vh;
-  width: 100%; }
-
-.important-data {
-  font-size: x-large;
-  font-weight: bold; }
+#container-ikusim {
+  color: #444; }
+  #container-ikusim #canvas {
+    /* border: 1px dotted gray; */ }
+  #container-ikusim .chart-container,
+  #container-ikusim .chart-container-2,
+  #container-ikusim .chart-container-3 {
+    position: relative;
+    margin: auto;
+    height: 20vh;
+    width: 100%;
+    margin-bottom: 25px; }
+  #container-ikusim .important-data {
+    font-size: x-large;
+    font-weight: bold;
+    color: #0E4EAD; }
+  #container-ikusim .important-data-more {
+    color: #0E4EAD; }
+  #container-ikusim table.salary-table {
+    font-size: small;
+    margin-bottom: 25px; }
+    #container-ikusim table.salary-table .td2,
+    #container-ikusim table.salary-table .td3 {
+      text-align: right; }
+  #container-ikusim .ikusim-form {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px #eee solid; }
+  #container-ikusim #ikusim-results {
+    opacity: 0.7;
+    pointer-events: none; }
+  #container-ikusim #results-h2 {
+    display: none; }
+  #container-ikusim button.btn-moonview {
+    /* background-color: $main-color; */
+    /* @include gradation; */
+    color: #ffffff;
+    background: linear-gradient(to right, #000046, #1CB5E0);
+    margin-bottom: 20px; }
+  #container-ikusim .gray-block {
+    background-color: #fafafa;
+    padding-bottom: 0.25em; }
+  #container-ikusim h2 {
+    font-weight: 600;
+    font-size: 1.7rem;
+    margin-top: 45px;
+    /* background-image: linear-gradient(to right, #b8cbb8 0%, #b8cbb8 0%, #b465da 0%, #cf6cc9 33%, #ee609c 66%, #ee609c 100%); */
+    background-image: linear-gradient(to right, #000046 0%, #1CB5E0 70%, #1CB5E0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; }
+  #container-ikusim h3 {
+    position: relative;
+    padding: 0.25em 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 30px;
+    color: #0E4EAD;
+    /* background-image: linear-gradient(to right, $gradient0, $gradient1); */
+    /* background-image: linear-gradient(to right, $gradient0 0%, $gradient1 70%, $gradient1 100%); */
+    /* -webkit-background-clip: text; */
+    /* -webkit-text-fill-color: transparent; */ }
+  #container-ikusim h3:after {
+    content: "";
+    display: block;
+    height: 4px;
+    /* background: -moz-linear-gradient(to right, rgb(255, 186, 115), #ffb2b2); */
+    /* background: -webkit-linear-gradient(to right, rgb(255, 186, 115), #ffb2b2); */
+    /* background: linear-gradient(to right, rgb(255, 186, 115), #ffb2b2); */ }

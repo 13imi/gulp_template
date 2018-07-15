@@ -10,13 +10,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/locale/ja.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+    <script src="js/html2canvas.min.js"></script>
   </head>
 
   <body>
-    <div class="container">
-
+    <div class="container" id="container-ikusim">
       <header>
-        <h2>bootstraptest</h2>
+        <h2 class="h4">イクシム！〜育児休業給付金シミュレーターα版〜（パパ用）</h2>
       </header>
 
       <div class="row">
@@ -28,8 +28,8 @@
               <p>
                 育休を取得すると雇用保険から育児休業給付金が支払われます。金額は取得から180日は額面の67%、181日以降は50%です。<br/>育休を取得した場合と、このまま働き続けた場合では、あなたの収入が、また子どもと過ごす時間がどのように変わるか見てみましょう。
               </p>
-              <form class="form-horizontal">
 
+              <form class="form-horizontal ikusim-form">
                 <div class="form-group">
                   <label for="inputEmail3" class="">出産予定日を教えてください</label>
                   <div class="">
@@ -50,7 +50,12 @@
                 <div class="form-group">
                   <label for="inputEmail3" class="">額面月収を教えてください ※1</label>
                   <div class="">
-                    <input type="number" class="form-control form-control-sm" data-id="inputMonthlyAllSalary" placeholder="¥100,000">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">¥</div>
+                      </div>
+                      <input type="number" class="form-control form-control-sm" data-id="inputMonthlyAllSalary" placeholder="100000">
+                    </div>
                     <div class="invalid-feedback">
                       Looks good!
                     </div>
@@ -60,9 +65,35 @@
                 <div class="form-group">
                   <label for="inputEmail3" class="">手取り月収を教えてください</label>
                   <div class="">
-                    <input type="number" class="form-control form-control-sm" data-id="inputMonthlySalary" placeholder="¥80,000">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">¥</div>
+                      </div>
+                      <input type="number" class="form-control form-control-sm" data-id="inputMonthlySalary" placeholder="80,000">
+                    </div>
                     <div class="invalid-feedback">
                       数値を入力してください。
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="inputEmail3" class="">1日の就労時間(勤務＆通勤)を教えてください</label>
+                  <div class="">
+                    <div class="input-group">
+                      <select class="form-control" id="exampleFormControlSelect1" data-id="inputWorkTime">
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                        <option>11</option>
+                      </select>
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">時間</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -81,61 +112,128 @@
                     </small>
                   </div>
                 </div>
-
-                <button type="button" class="btn btn-success btn-block" data-id="startSim">育休を診断する</button>
-                <small id="passwordHelpBlock" class="form-text text-muted">
-                  ※1…通勤費、住宅補助費など会社から支給されるお金の総額を入力してください。標準報酬月額を入れるのが最適です。
-                </small>
               </form>
+
+              <button type="button" class="btn btn-moonview btn-block" data-id="startSim" href="#ikusim-results">育休を診断する</button>
+              <small id="passwordHelpBlock" class="form-text text-muted">
+                ※1…通勤費、住宅補助費など会社から支給されるお金の総額を入力してください。標準報酬月額(※2)を入れるのが最適です。<br />
+                ※2…標準報酬月額とは、保険料と決めるために毎年6月に設定される月収区分です。
+              </small>
+
 
               <br />
             </div>
 
 
-
-            <div class="col-sm-12">
-              <h2 class="h3">あなたの育休予想</h2>
-              <p>育休を取り、育児休業給付金を取得した場合の収入をシミュレーションしました。
+            <div class="col-sm-12" data-id="exampleResultsH2">
+              <h2 class="h3">例：あなたの育休予想</h2>
+              <p>診断すると以下のような育休予想を見ることができます。（こちらはサンプルです）
               </p>
+            </div>
 
-              <div class="chart-container">
-                <canvas id="canvas"></canvas>
+            <div id="ikusim-results" data-id="ikusimResults">
+              <div class="col-sm-12" id="results-h2" data-id="resultsH2">
+                <h2 class="h3">あなたの育休予想</h2>
+                <p>育休を取り、育児休業給付金を取得した場合の収入をシミュレーションしました。
+                </p>
+              </div>
+
+              <div class="col-sm-12">
+                <div class="row">
+
+                  <div class="col-sm-12" id="capture">
+                    <div class="row">
+                      <div class="col-sm-12 gray-block">
+                        <h3>あなたの育休期間は</h3>
+                        <div class="box29 papabox">
+                          <div class="box-title">育児休業期間</div>
+                          <p><span data-id="papaIkukyuStart">2018年7月18日</span> 〜<span data-id="papaIkukyuEnd">2019年7月17日</span></p>
+                        </div>
+                      </div>
+
+                      <div class="col-sm-12">
+                        <h3>あなたの育児休業給付金は</h3>
+                        <p>育休中に合計<span data-id="kyufu">2,106,000 円</span>の給付金がもらえます。</p>
+                        <div class="chart-container">
+                          <canvas id="canvas"></canvas>
+                        </div>
+                      </div>
+
+                      <div class="col-sm-12">
+                        <table class="table table-sm salary-table" data-id="salaryTable">
+                          <thead>
+                            <tr>
+                              <th scope="col">年月</th>
+                              <th scope="col">育児休業給付金</th>
+                              <th scope="col">もとの給与</th>
+                            </tr>
+                          </thead>
+                          <tbody><tr><th scope="row">19年7月</th><td class="td2">0 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">19年8月</th><td class="td2">0 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">19年9月</th><td class="td2">402,000 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">19年10月</th><td class="td2">0 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">19年11月</th><td class="td2">402,000 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">19年12月</th><td class="td2">0 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">20年1月</th><td class="td2">402,000 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">20年2月</th><td class="td2">0 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">20年3月</th><td class="td2">300,000 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">20年4月</th><td class="td2">0 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">20年5月</th><td class="td2">300,000 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">20年6月</th><td class="td2">0 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">20年7月</th><td class="td2">300,000 円</td><td class="td3">240,000 円</td></tr><tr><th scope="row">合計</th><td class="td2">2,106,000 円</td><td class="td3">2,880,000 円</td></tr></tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-12">
+                    <a href="" id="ikusim-money" download="ikusim-money.png">
+                      <button type="button" class="btn btn-moonview btn-block" data-id="">診断結果の画像を保存する</button>
+                    </a>
+                  </div>
+
+
+
+                  <div class="col-sm-12 gray-block" id="capture2">
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <h3>あなたが子どもと過ごせる時間は</h3>
+                      </div>
+
+                      <div class="col-sm-8">
+                        <p>育休で収入は手取りの<span class="important-data" data-id="allSalary">73.1</span>%になりますが</p>
+                      </div>
+
+                      <div class="col-sm-4">
+                        <div class="chart-container-2">
+                          <canvas id="canvas-2"></canvas>
+                        </div>
+                      </div>
+
+
+                      <div class="col-sm-8">
+                        <p>子どもと過ごせる時間が<span class="important-data important-data-more" data-id="childTime">2160</span>時間（<span data-id="childTimeMonth">90</span>日間分）増えます。<br />
+                          <small>1日あたり出勤&勤務を<span class="" data-id="childTime"></span>時間として、平日のみ計算。</small> </p>
+                      </div>
+
+                      <div class="col-sm-4">
+                        <div class="chart-container-3">
+                          <canvas id="canvas-3"></canvas>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <div class="col-sm-12 gray-block">
+                    <a href="" id="ikusim-childtime" download="ikusim.png">
+                      <button type="button" class="btn btn-moonview btn-block" data-id="">診断結果の画像を保存する</button>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
 
+
             <div class="col-sm-12">
-              <div class="row">
-                <div class="col-sm-12">
-                  <div class="box29 papabox">
-                    <div class="box-title">育児休業期間（パパ）</div>
-                    <p><span data-id="papaIkukyuStart"></span> 〜<span data-id="papaIkukyuEnd"></span></p>
-                  </div>
-                </div>
-
-                <div class="col-sm-4">
-                  <div class="chart-container-2">
-                    <canvas id="canvas-2"></canvas>
-                  </div>
-                </div>
-
-                <div class="col-sm-8">
-                  <p>育休で収入は<span class="important-data" data-id="allSalary"></span>%になりますが</p>
-                </div>
-
-                <div class="col-sm-4">
-                  <div class="chart-container-3">
-                    <canvas id="canvas-3"></canvas>
-                  </div>
-                </div>
-
-                <div class="col-sm-8">
-                  <p>子どもと過ごせる時間が<span class="important-data" data-id="childTime"></span>時間（<span data-id="childTimeMonth"></span>日間分）増えます。</p>
-                </div>
-
-              </div>
+              <h2 class="h3">よくある質問</h2>
+              <h3>育児休業給付金はいつからもらえるの？</h3>
+              <h3>育児休業給付金の給付タイミングは？</h3>
+              <h3>給付金から社会保険料や所得税が引かれるの？</h3>
+              <h3>住民税はどうなるの？</h3>
+              <h3>標準報酬月額ってなに？</h3>
             </div>
           </div>
         </article>
+
         <aside class="col-md-3">
 
         </aside>
