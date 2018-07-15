@@ -90,6 +90,13 @@ function cal() {
     mamaIkukyuStart.text(mamaIkukyuStartDate.format("YYYY年MM月D日"));
     mamaIkukyuEnd.text(mamaIkukyuEndDate.format("YYYY年MM月D日"));
 
+    // 最低額、最高額をチェック
+    if(monthlyAllSalary >= 447300) {
+        monthlyAllSalary = 447300;
+    } else if(monthlyAllSalary <= 74100) {
+        monthlyAllSalary = 74100;
+    }
+
     graph(papaIkukyuStartDate, papaIkukyuEndDate, monthlyAllSalary, monthlySalary, workTime);
 
     allSalary.text(salaryPercentage(monthlyAllSalary, monthlySalary));
@@ -205,29 +212,23 @@ window.onload = function() {
 };
 
 function graph(start, end, monthlyAllSalary, monthlySalary, workTime) {
-    // ctx = document.getElementById("canvas").getContext("2d");
-    var doSomething = function() {
-        var defer = $.Deferred();
-        window.myBar.data = salaryData(start, monthlyAllSalary);
-        window.myBar.update();
-        window.myBar2.data = withChildTimeData(workTime);
-        window.myBar2.update();
-        window.myPieChart.data = salaryPercentageData(monthlyAllSalary, monthlySalary);
-        window.myPieChart.update();
-        defer.resolve(); // 解決
-        return defer.promise(); // プロミスを作って返す
-    };
-
-    var promise = doSomething();
-    promise.done(function() {
-        createImage("#capture", "ikusim-money");
-        createImage("#capture2", "ikusim-childtime");
-    });
+    window.myBar.data = salaryData(start, monthlyAllSalary);
+    window.myBar.update();
+    window.myBar2.data = withChildTimeData(workTime);
+    window.myBar2.update();
+    window.myPieChart.data = salaryPercentageData(monthlyAllSalary, monthlySalary);
+    window.myPieChart.update();
 
     salaryTable.find("tbody").html("");
     $.each(window.myBar.data.detail_labels, function(index, data) {
         salaryTable.find("tbody").append('<tr><th scope="row">'+ this + '</th><td class="td2">' + addCommaYen(window.myBar.data.datasets[0].data[index]) + '</td><td class="td3">'+ addCommaYen(monthlySalary) + '</td></tr>');
     });
+
+    setTimeout(function(){
+        createImage("#capture", "ikusim-money");
+        createImage("#capture2", "ikusim-childtime");
+	  }, 500);
+
 }
 
 function createImage(element, btn) {

@@ -4,10 +4,7 @@ var sass = require("gulp-sass");
 var imagemin = require("gulp-imagemin");
 var autoprefixer = require("gulp-autoprefixer");
 var browser = require("browser-sync");
-<<<<<<< HEAD
 var cleanCSS = require('gulp-clean-css');
-=======
->>>>>>> 48b106a1a099a78390d2c2e4a496c0056db94012
 var plumber = require("gulp-plumber");
 
 const common = {
@@ -44,12 +41,6 @@ gulp.task("js", function() {
 // for sass
 gulp.task("sass", function () {
     gulp.src(["src/sass/**/*.scss"], { base: 'src/sass' }) //入力元
-<<<<<<< HEAD
-        // .pipe(frontnote({
-            // css: 'dest/css/style.css'
-        // }))
-=======
->>>>>>> 48b106a1a099a78390d2c2e4a496c0056db94012
         .pipe(plumber())
         .pipe(sass({
             includePaths: ["bower_components/bootstrap/scss"]
