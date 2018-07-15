@@ -23,3 +23,8 @@ This is the template of gulp projects.
 - gulp-imagemin
 - gulp-plumber
 - gulp-sass
+
+## Usage
+1. Clone this repository
+2. Install bower components `$ bower i`
+3. Install npm components `$ npm i`
