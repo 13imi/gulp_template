@@ -1,3 +1,4 @@
+// DOM定義
 var inputBirthday = $('[data-id="inputBirthday"]');
 var inputTwins = $('[data-id="inputTwins"]');
 var inputMonthlyAllSalary = $('[data-id="inputMonthlyAllSalary"]');
@@ -23,10 +24,48 @@ var exampleResultsH2 = $('[data-id="exampleResultsH2"]');
 var resultsH2 = $('[data-id="resultsH2"]');
 var canvasData = null;
 
+// CSS用変数
 var mainColor = "rgba(14,78,173,0.85)";
 var accentColor = "rgba(255,152,0,0.8)";
 var gradient0 = "#000046",
     gradient1 = "#1CB5E0";
+
+
+// イベント
+startSimButton.on('click', function() {
+    ikusimResults.css({
+        "opacity": "1.0",
+        "pointer-events": "initial"
+    });
+    resultsH2.css("display", "block");
+    exampleResultsH2.css("display", "none");
+    cal();
+});
+
+//**** onloadイベント ****//
+// chart.js レンダリング
+window.onload = function() {
+    ctx = document.getElementById("canvas").getContext("2d");
+    window.myBar = new Chart(ctx, {
+        type: 'bar', // ここは bar にする必要があります
+        data: barChartData,
+        options: chartOptions
+    });
+
+    ctx2 = document.getElementById("canvas-2").getContext("2d");
+    window.myPieChart = new Chart(ctx2, {
+        type: 'pie', // ここは bar にする必要があります
+        data: pieChartData,
+        options: pieChartOptions
+    });
+
+    ctx3 = document.getElementById("canvas-3").getContext("2d");
+    window.myBar2 = new Chart(ctx3, {
+        type: 'bar', // ここは bar にする必要があります
+        data: barChartData2,
+        options: chartOptions2
+    });
+};
 
 // スムーススクロール
 $(function(){
@@ -40,25 +79,7 @@ $(function(){
     });
 });
 
-
-inputBirthday.on('change', function() {
-    /* cal();*/
-});
-
-inputTwins.on('change', function() {
-    /* cal();*/
-});
-
-startSimButton.on('click', function() {
-    ikusimResults.css({
-        "opacity": "1.0",
-        "pointer-events": "initial"
-    });
-    resultsH2.css("display", "block");
-    exampleResultsH2.css("display", "none");
-    cal();
-});
-
+// 関数
 function cal() {
     var birthDate = moment(inputBirthday.val());
 
@@ -104,6 +125,7 @@ function cal() {
     childTimeMonth.text(withChildTime(workTime)/24);
 }
 
+// chart.js options
 var chartOptions =
     {
         chartArea: {
@@ -188,29 +210,7 @@ var pieChartOptions =
         }
     }
 
-window.onload = function() {
-    ctx = document.getElementById("canvas").getContext("2d");
-    window.myBar = new Chart(ctx, {
-        type: 'bar', // ここは bar にする必要があります
-        data: barChartData,
-        options: chartOptions
-    });
-
-    ctx2 = document.getElementById("canvas-2").getContext("2d");
-    window.myPieChart = new Chart(ctx2, {
-        type: 'pie', // ここは bar にする必要があります
-        data: pieChartData,
-        options: pieChartOptions
-    });
-
-    ctx3 = document.getElementById("canvas-3").getContext("2d");
-    window.myBar2 = new Chart(ctx3, {
-        type: 'bar', // ここは bar にする必要があります
-        data: barChartData2,
-        options: chartOptions2
-    });
-};
-
+// chart.js グラフ描画
 function graph(start, end, monthlyAllSalary, monthlySalary, workTime) {
     window.myBar.data = salaryData(start, monthlyAllSalary);
     window.myBar.update();
@@ -231,61 +231,7 @@ function graph(start, end, monthlyAllSalary, monthlySalary, workTime) {
 
 }
 
-function createImage(element, btn) {
-    html2canvas(document.querySelector(element)).then(canvas => {
-        // document.body.appendChild(canvas);
-        canvasData = canvas;
-        document.getElementById(btn).href = canvasData.toDataURL();
-    });
-}
-
-function salaryPercentage(allSalary, salary) {
-    var salary67 = allSalary * 0.67;
-    var salary50 = allSalary * 0.50;
-    salaryTable.find("tbody").append('<tr><th scope="row">合計</th><td class="td2">' + addCommaYen(salary67 * 6 + salary50 * 6) + '</td><td class="td3">'+ addCommaYen(salary * 12) + '</td></tr>');
-
-
-    return (((salary67 * 6 + salary50 * 6) / (salary * 12)) * 100).toFixed(1);
-}
-
-function salaryPercentageData(allSalary, salary) {
-    var salary67 = allSalary * 0.67;
-    var salary50 = allSalary * 0.50;
-    var yearSalary = salary67 * 6 + salary50 * 6;
-    kyufu.text(addCommaYen(yearSalary));
-
-    return {
-        datasets: [{
-            data: [yearSalary, salary * 12 - yearSalary],
-            backgroundColor: [mainColor, "#dddddd"]
-        }],
-
-        // これらのラベルは凡例とツールチップに表示されます。
-        labels: [
-            '育児休業給付金',
-            '減るお金'
-        ]
-    };
-}
-
-function withChildTime(workTime){
-    return workTime * 20 * 12;
-}
-
-function withChildTimeData(workTime){
-    return  {
-        labels: ['休まない','休む'],
-        datasets: [
-            {
-                label: '子どもと過ごす時間',
-                data: [(24 - 8 - workTime) * 20 * 12, (24 - 8) * 20 * 12],
-                borderColor : ["#dddddd", mainColor],
-                backgroundColor : ["#dddddd", mainColor]
-            }
-        ]
-    };
-}
-
+// データ作成 給付金
 function salaryData(start, salary) {
     var salary67x2 = salary * 0.67 * 2;
     var salary50x2 = salary * 0.50 * 2;
@@ -347,11 +293,70 @@ function salaryData(start, salary) {
     return barChartData;
 }
 
+// データ作成 給付金割合
+function salaryPercentage(allSalary, salary) {
+    var salary67 = allSalary * 0.67;
+    var salary50 = allSalary * 0.50;
+    salaryTable.find("tbody").append('<tr><th scope="row">合計</th><td class="td2">' + addCommaYen(salary67 * 6 + salary50 * 6) + '</td><td class="td3">'+ addCommaYen(salary * 12) + '</td></tr>');
+
+
+    return (((salary67 * 6 + salary50 * 6) / (salary * 12)) * 100).toFixed(1);
+}
+
+function salaryPercentageData(allSalary, salary) {
+    var salary67 = allSalary * 0.67;
+    var salary50 = allSalary * 0.50;
+    var yearSalary = salary67 * 6 + salary50 * 6;
+    kyufu.text(addCommaYen(yearSalary));
+
+    return {
+        datasets: [{
+            data: [yearSalary, salary * 12 - yearSalary],
+            backgroundColor: [mainColor, "#dddddd"]
+        }],
+
+        // これらのラベルは凡例とツールチップに表示されます。
+        labels: [
+            '育児休業給付金',
+            '減るお金'
+        ]
+    };
+}
+
+// データ作成 子どもとの時間
+function withChildTime(workTime){
+    return workTime * 20 * 12;
+}
+
+function withChildTimeData(workTime){
+    return  {
+        labels: ['休まない','休む'],
+        datasets: [
+            {
+                label: '子どもと過ごす時間',
+                data: [(24 - 8 - workTime) * 20 * 12, (24 - 8) * 20 * 12],
+                borderColor : ["#dddddd", mainColor],
+                backgroundColor : ["#dddddd", mainColor]
+            }
+        ]
+    };
+}
+
+// カンマ、単位（円）付与
 function addCommaYen(item) {
     return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') +' 円';
 }
 
-// とある4週間分のデータログ
+// 画像作成
+function createImage(element, btn) {
+    html2canvas(document.querySelector(element)).then(canvas => {
+        // document.body.appendChild(canvas);
+        canvasData = canvas;
+        document.getElementById(btn).href = canvasData.toDataURL();
+    });
+}
+
+// サンプルデータ
 var barChartData = {
     labels: ['5月','6月','7月','8月','9月','10月'],
     datasets: [
