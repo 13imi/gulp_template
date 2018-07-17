@@ -1,9 +1,13 @@
 // DOM定義
+// input系
 var inputBirthday = $('[data-id="inputBirthday"]');
 var inputTwins = $('[data-id="inputTwins"]');
 var inputMonthlyAllSalary = $('[data-id="inputMonthlyAllSalary"]');
 var inputMonthlySalary = $('[data-id="inputMonthlySalary"]');
+var inputIkukyuPlan =  $('[data-id="inputIkukyuPlan"]');
 var inputWorkTime =  $('[data-id="inputWorkTime"]');
+
+// 表示系
 var birthDay = $('[data-id="birthDay"]');
 var papaIkukyuStart = $('[data-id="papaIkukyuStart"]');
 var papaIkukyuEnd = $('[data-id="papaIkukyuEnd"]');
@@ -13,7 +17,7 @@ var mamaAfterSankyuStart = $('[data-id="mamaAfterSankyuStart"]');
 var mamaAfterSankyuEnd = $('[data-id="mamaAfterSankyuEnd"]');
 var mamaIkukyuStart = $('[data-id="mamaIkukyuStart"]');
 var mamaIkukyuEnd = $('[data-id="mamaIkukyuEnd"]');
-var startSimButton = $('[data-id="startSim"]');
+var selectedIkukyuPlan = $('[data-id="selectedIkukyuPlan"]');
 var allSalary = $('[data-id="allSalary"]');
 var childTime = $('[data-id="childTime"]');
 var childTimeMonth = $('[data-id="childTimeMonth"]');
@@ -23,6 +27,9 @@ var ikusimResults = $('[data-id="ikusimResults"]');
 var exampleResultsH2 = $('[data-id="exampleResultsH2"]');
 var resultsH2 = $('[data-id="resultsH2"]');
 var canvasData = null;
+
+// パーツ
+var startSimButton = $('[data-id="startSim"]');
 
 // CSS用変数
 var mainColor = "rgba(14,78,173,0.85)";
@@ -86,9 +93,10 @@ function cal() {
     var monthlyAllSalary = inputMonthlyAllSalary.val();
     var monthlySalary = inputMonthlySalary.val();
     var workTime = inputWorkTime.val();
+    var ikukyuPlan = inputIkukyuPlan.val();
 
     var papaIkukyuStartDate = moment(inputBirthday.val());
-    var papaIkukyuEndDate = moment(inputBirthday.val()).add(1, "y").add(-1, "d");
+    var papaIkukyuEndDate = moment(inputBirthday.val()).add(ikukyuPlan, "M").add(-1, "d");
 
     if (inputTwins.prop('checked')) {
         var mamaBeforeSankyuStartDate = moment(inputBirthday.val()).add(-97, "d");
@@ -104,6 +112,7 @@ function cal() {
     birthDay.text(birthDate.format("YYYY年M月D日"));
     papaIkukyuStart.text(papaIkukyuStartDate.format("YYYY年M月D日"));
     papaIkukyuEnd.text(papaIkukyuEndDate.format("YYYY年MM月D日"));
+    selectedIkukyuPlan.text(inputIkukyuPlan.find("option:selected").text());
     mamaBeforeSankyuStart.text(mamaBeforeSankyuStartDate.format("YYYY年M月D日"));
     mamaBeforeSankyuEnd.text(birthDate.format("YYYY年M月D日"));
     mamaAfterSankyuStart.text(mamaAfterSankyuStartDate.format("YYYY年M月D日"));
@@ -118,11 +127,11 @@ function cal() {
         monthlyAllSalary = 74100;
     }
 
-    graph(papaIkukyuStartDate, papaIkukyuEndDate, monthlyAllSalary, monthlySalary, workTime);
+    graph(papaIkukyuStartDate, papaIkukyuEndDate, ikukyuPlan, monthlyAllSalary, monthlySalary, workTime);
 
-    allSalary.text(salaryPercentage(monthlyAllSalary, monthlySalary));
-    childTime.text(withChildTime(workTime));
-    childTimeMonth.text(withChildTime(workTime)/24);
+    allSalary.text(salaryPercentage(monthlyAllSalary, monthlySalary, ikukyuPlan));
+    childTime.text(withChildTime(workTime, ikukyuPlan));
+    childTimeMonth.text(withChildTime(workTime, ikukyuPlan)/24);
 }
 
 // chart.js options
@@ -211,12 +220,12 @@ var pieChartOptions =
     }
 
 // chart.js グラフ描画
-function graph(start, end, monthlyAllSalary, monthlySalary, workTime) {
-    window.myBar.data = salaryData(start, monthlyAllSalary);
+function graph(start, end, ikukyuPlan, monthlyAllSalary, monthlySalary, workTime) {
+    window.myBar.data = salaryData(start, ikukyuPlan, monthlyAllSalary);
     window.myBar.update();
-    window.myBar2.data = withChildTimeData(workTime);
+    window.myBar2.data = withChildTimeData(workTime, ikukyuPlan);
     window.myBar2.update();
-    window.myPieChart.data = salaryPercentageData(monthlyAllSalary, monthlySalary);
+    window.myPieChart.data = salaryPercentageData(monthlyAllSalary, monthlySalary, ikukyuPlan);
     window.myPieChart.update();
 
     salaryTable.find("tbody").html("");
@@ -232,59 +241,43 @@ function graph(start, end, monthlyAllSalary, monthlySalary, workTime) {
 }
 
 // データ作成 給付金
-function salaryData(start, salary) {
-    var salary67x2 = salary * 0.67 * 2;
-    var salary50x2 = salary * 0.50 * 2;
+function salaryData(start, month, salary) {
+    var salary67 = salary * 0.67;
+    var salary50 = salary * 0.50;
+
+    // 給付金データ
+    var salaryArray = [];
+    for(var i = 1; i <= month; i++) {
+        if(salaryArray.length % 2 == 0) {
+            salaryArray.push( i <= 6 ? salary67 * 2 : salary50 * 2);
+        } else {
+            salaryArray.push(0);
+        }
+
+        if(i == month) {
+            salaryArray.pop();
+            if(salaryArray.length % 2 == 0) {
+                salaryArray.push( i <= 6 ? salary67 : salary50);
+            }
+        }
+    }
+    salaryArray.unshift(0, 0);
+
+    // ラベル
+    var labels = [];
+    var detailLabels = [];
+    for(var i = 0; i <=  salaryArray.length - 1; i++) {
+        labels.push(start.clone().add(i, "M").format("M月"));
+        detailLabels.push(start.clone().add(i, "M").format("YY年M月"));
+    }
 
     var barChartData = {
-        labels: [
-            start.format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月"),
-            start.add(1, "M").format("M月")
-        ],
-        detail_labels: [
-            start.format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月"),
-            start.add(1, "M").format("YY年M月")
-        ],
+        labels: labels,
+        detail_labels: detailLabels,
         datasets: [
             {
                 label: '育児休業給付金',
-                data: [
-                    '0',
-                    '0',
-                    salary67x2,
-                    '0',
-                    salary67x2,
-                    '0',
-                    salary67x2,
-                    '0',
-                    salary50x2,
-                    '0',
-                    salary50x2,
-                    '0',
-                    salary50x2
-                ],
+                data: salaryArray,
                 borderColor : mainColor,
                 backgroundColor : mainColor
             }
@@ -294,24 +287,24 @@ function salaryData(start, salary) {
 }
 
 // データ作成 給付金割合
-function salaryPercentage(allSalary, salary) {
+function salaryPercentage(allSalary, salary, month) {
     var salary67 = allSalary * 0.67;
     var salary50 = allSalary * 0.50;
-    salaryTable.find("tbody").append('<tr><th scope="row">合計</th><td class="td2">' + addCommaYen(salary67 * 6 + salary50 * 6) + '</td><td class="td3">'+ addCommaYen(salary * 12) + '</td></tr>');
+    salaryTable.find("tbody").append('<tr><th scope="row">合計</th><td class="td2">' + addCommaYen(sumKyufu(allSalary, month)) + '</td><td class="td3">'+ addCommaYen(salary * month) + '</td></tr>');
 
 
-    return (((salary67 * 6 + salary50 * 6) / (salary * 12)) * 100).toFixed(1);
+    return ((sumKyufu(allSalary, month) / (salary * month)) * 100).toFixed(1);
 }
 
-function salaryPercentageData(allSalary, salary) {
+function salaryPercentageData(allSalary, salary, month) {
     var salary67 = allSalary * 0.67;
     var salary50 = allSalary * 0.50;
-    var yearSalary = salary67 * 6 + salary50 * 6;
+    var yearSalary = sumKyufu(allSalary, month);
     kyufu.text(addCommaYen(yearSalary));
 
     return {
         datasets: [{
-            data: [yearSalary, salary * 12 - yearSalary],
+            data: [yearSalary, salary * month - yearSalary],
             backgroundColor: [mainColor, "#dddddd"]
         }],
 
@@ -323,18 +316,22 @@ function salaryPercentageData(allSalary, salary) {
     };
 }
 
-// データ作成 子どもとの時間
-function withChildTime(workTime){
-    return workTime * 20 * 12;
+function sumKyufu(allSalary, month) {
+    return (month <= 6 ? allSalary * 0.67 * month : allSalary * 0.67 * (month - 6)) + (month <= 6 ? 0 : allSalary * 0.50 * (month - 6));
 }
 
-function withChildTimeData(workTime){
+// データ作成 子どもとの時間
+function withChildTime(workTime, month){
+    return workTime * 20 * month;
+}
+
+function withChildTimeData(workTime, month){
     return  {
         labels: ['休まない','休む'],
         datasets: [
             {
                 label: '子どもと過ごす時間',
-                data: [(24 - 8 - workTime) * 20 * 12, (24 - 8) * 20 * 12],
+                data: [(24 - 8 - workTime) * 20 * month, (24 - 8) * 20 * month],
                 borderColor : ["#dddddd", mainColor],
                 backgroundColor : ["#dddddd", mainColor]
             }
