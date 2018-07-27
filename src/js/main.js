@@ -1,35 +1,11 @@
-// DOM定義
-// input系
-var inputBirthday = $('[data-id="inputBirthday"]');
-var inputTwins = $('[data-id="inputTwins"]');
-var inputMonthlyAllSalary = $('[data-id="inputMonthlyAllSalary"]');
-var inputMonthlySalary = $('[data-id="inputMonthlySalary"]');
-var inputIkukyuPlan =  $('[data-id="inputIkukyuPlan"]');
-var inputWorkTime =  $('[data-id="inputWorkTime"]');
-
-// 表示系
-var birthDay = $('[data-id="birthDay"]');
-var papaIkukyuStart = $('[data-id="papaIkukyuStart"]');
-var papaIkukyuEnd = $('[data-id="papaIkukyuEnd"]');
-var mamaBeforeSankyuStart = $('[data-id="mamaBeforeSankyuStart"]');
-var mamaBeforeSankyuEnd = $('[data-id="mamaBeforeSankyuEnd"]');
-var mamaAfterSankyuStart = $('[data-id="mamaAfterSankyuStart"]');
-var mamaAfterSankyuEnd = $('[data-id="mamaAfterSankyuEnd"]');
-var mamaIkukyuStart = $('[data-id="mamaIkukyuStart"]');
-var mamaIkukyuEnd = $('[data-id="mamaIkukyuEnd"]');
-var selectedIkukyuPlan = $('[data-id="selectedIkukyuPlan"]');
-var allSalary = $('[data-id="allSalary"]');
-var childTime = $('[data-id="childTime"]');
-var childTimeMonth = $('[data-id="childTimeMonth"]');
-var salaryTable = $('[data-id="salaryTable"]');
-var kyufu = $('[data-id="kyufu"]');
-var ikusimResults = $('[data-id="ikusimResults"]');
-var exampleResultsH2 = $('[data-id="exampleResultsH2"]');
-var resultsH2 = $('[data-id="resultsH2"]');
-var canvasData = null;
-
-// パーツ
-var startSimButton = $('[data-id="startSim"]');
+// main処理
+window.onload = function() {
+    Ikusim.mychart.bar1 = new Ikusim.Chart("canvas");
+    Ikusim.mychart.pie1 = new Ikusim.Chart("canvas-2");
+    Ikusim.mychart.bar2 = new Ikusim.Chart("canvas-3");
+    Ikusim.event.onload();
+    Ikusim.util.smoothScroll();
+};
 
 // CSS用変数
 var mainColor = "rgba(14,78,173,0.85)";
@@ -38,44 +14,116 @@ var gradient0 = "#000046",
     gradient1 = "#1CB5E0";
 
 
-// イベント
-startSimButton.on('click', function() {
-    ikusimResults.css({
-        "opacity": "1.0",
-        "pointer-events": "initial"
-    });
-    resultsH2.css("display", "block");
-    exampleResultsH2.css("display", "none");
-    cal();
-});
+// 名前空間(空のコンストラクタを生成)
+var Ikusim = function() {};
 
-//**** onloadイベント ****//
-// chart.js レンダリング
-window.onload = function() {
-    ctx = document.getElementById("canvas").getContext("2d");
-    window.myBar = new Chart(ctx, {
-        type: 'bar', // ここは bar にする必要があります
-        data: barChartData,
-        options: chartOptions
-    });
+Ikusim = {
+    // event:
+    event: {
+        onload: {},
+        bind: {},
+        start: {},
+        output: {}
+    },
+    // util: 共通モジュール
+    util: {
+        smoothScroll: {},
+        yen: {},
+        capture: {}
+    },
+    // chart: チャートモジュール（chart.js使用）
+    chart: {
+        bar: {},
+        pie: {},
+        barOption: {},
+        pieOption: {}
+    },
+    mychart: {},
+    table : {},
+    inherits: {}
+};
 
-    ctx2 = document.getElementById("canvas-2").getContext("2d");
-    window.myPieChart = new Chart(ctx2, {
-        type: 'pie', // ここは bar にする必要があります
-        data: pieChartData,
-        options: pieChartOptions
-    });
 
-    ctx3 = document.getElementById("canvas-3").getContext("2d");
-    window.myBar2 = new Chart(ctx3, {
-        type: 'bar', // ここは bar にする必要があります
-        data: barChartData2,
-        options: chartOptions2
+// Chart: グラフ描画用クラス
+Ikusim.Chart = function(ctx) {
+    this.ctx = document.getElementById(ctx).getContext("2d");
+};
+
+Ikusim.Chart.prototype.create = function(type, data, options) {
+    return this.graph = new Chart(this.ctx, {
+        type: type, // ここは bar にする必要があります
+        data: data,
+        options: options
     });
 };
 
-// スムーススクロール
-$(function(){
+Ikusim.Chart.prototype.update = function(data, options) {
+    this.graph.data =  data;
+    this.graph.options = options;
+    this.graph.update();
+};
+
+// event: 制御
+Ikusim.event.onload = (function() {
+    var sample = new Ikusim.Sample("2018-07-22", "290000", "240000", 12, 9);
+
+    Ikusim.mychart.bar1.create("bar", sample.getBenefitData(), Ikusim.chart.BarYenOptions());
+    Ikusim.mychart.pie1.create("pie", sample.getBenefitDifData(), Ikusim.chart.PieOptions());
+    Ikusim.mychart.bar2.create("bar", sample.getSpendTimeDifData(), Ikusim.chart.BarTimeOptions());
+
+    Ikusim.event.output(sample);
+    Ikusim.event.bind();
+});
+
+Ikusim.event.bind = (function() {
+    var $startSimButton = $('[data-id="startSim"]');
+    var $results = $('[data-id="ikusimResults"]');
+    var $exampleResultsH2 = $('[data-id="exampleResultsH2"]');
+    var $resultsH2 = $('[data-id="resultsH2"]');
+    var $canvasData = null;
+
+    $startSimButton.on('click', function() {
+        $results.css({
+            "opacity": "1.0",
+            "pointer-events": "initial"
+        });
+
+        $resultsH2.css("display", "block");
+        $exampleResultsH2.css("display", "none");
+
+        Ikusim.event.start();
+    });
+});
+
+Ikusim.event.chartUpdate = (function(obj) {
+    Ikusim.mychart.bar1.update(obj.getBenefitData(), Ikusim.chart.BarYenOptions());
+		Ikusim.mychart.pie1.update(obj.getBenefitDifData(), Ikusim.chart.PieOptions());
+		Ikusim.mychart.bar2.update(obj.getSpendTimeDifData(), Ikusim.chart.BarTimeOptions());
+});
+
+Ikusim.event.output = (function(obj) {
+		Ikusim.table(obj);
+    obj.changeSumBenefit();
+    obj.changePerBenefit();
+    obj.changeSumSpendTime();
+    obj.changePlan();
+
+    setTimeout(function(){
+        Ikusim.util.capture("#capture", "ikusim-money");
+        Ikusim.util.capture("#capture2", "ikusim-childtime");
+	  }, 500);
+});
+
+//
+Ikusim.event.start = (function() {
+    var papa =  new Ikusim.Papa();
+    Ikusim.event.chartUpdate(papa);
+    Ikusim.event.output(papa);
+});
+
+
+ // util: 共通モジュール
+Ikusim.util.smoothScroll = (function() {
     $('button[href^="#"]').click(function() {
         var speed = 600;
         var href= $(this).attr("href");
@@ -86,67 +134,31 @@ $(function(){
     });
 });
 
-// 関数
-function cal() {
-    var birthDate = moment(inputBirthday.val());
+Ikusim.util.yen = (function(item) {
+    return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') +' 円';
+});
 
-    var monthlyAllSalary = inputMonthlyAllSalary.val();
-    var monthlySalary = inputMonthlySalary.val();
-    var workTime = inputWorkTime.val();
-    var ikukyuPlan = inputIkukyuPlan.val();
+Ikusim.util.capture = (function(element, btn) {
+    html2canvas(document.querySelector(element)).then(canvas => {
+        canvasData = canvas;
+        document.getElementById(btn).href = canvasData.toDataURL();
+    });
+});
 
-    var papaIkukyuStartDate = moment(inputBirthday.val());
-    var papaIkukyuEndDate = moment(inputBirthday.val()).add(ikukyuPlan, "M").add(-1, "d");
-
-    if (inputTwins.prop('checked')) {
-        var mamaBeforeSankyuStartDate = moment(inputBirthday.val()).add(-97, "d");
-    } else {
-        var mamaBeforeSankyuStartDate = moment(inputBirthday.val()).add(-41, "d");
-    }
-
-    var mamaAfterSankyuStartDate = moment(inputBirthday.val()).add(1, "d");
-    var mamaAfterSankyuEndDate = moment(inputBirthday.val()).add(56, "d");
-    var mamaIkukyuStartDate = moment(inputBirthday.val()).add(57, "d");
-    var mamaIkukyuEndDate = moment(inputBirthday.val()).add(1, "y").add(-1, "d");
-
-    birthDay.text(birthDate.format("YYYY年M月D日"));
-    papaIkukyuStart.text(papaIkukyuStartDate.format("YYYY年M月D日"));
-    papaIkukyuEnd.text(papaIkukyuEndDate.format("YYYY年MM月D日"));
-    selectedIkukyuPlan.text(inputIkukyuPlan.find("option:selected").text());
-    mamaBeforeSankyuStart.text(mamaBeforeSankyuStartDate.format("YYYY年M月D日"));
-    mamaBeforeSankyuEnd.text(birthDate.format("YYYY年M月D日"));
-    mamaAfterSankyuStart.text(mamaAfterSankyuStartDate.format("YYYY年M月D日"));
-    mamaAfterSankyuEnd.text(mamaAfterSankyuEndDate.format("YYYY年M月D日"));
-    mamaIkukyuStart.text(mamaIkukyuStartDate.format("YYYY年MM月D日"));
-    mamaIkukyuEnd.text(mamaIkukyuEndDate.format("YYYY年MM月D日"));
-
-    // 最低額、最高額をチェック
-    if(monthlyAllSalary >= 447300) {
-        monthlyAllSalary = 447300;
-    } else if(monthlyAllSalary <= 74100) {
-        monthlyAllSalary = 74100;
-    }
-
-    graph(papaIkukyuStartDate, papaIkukyuEndDate, ikukyuPlan, monthlyAllSalary, monthlySalary, workTime);
-
-    allSalary.text(salaryPercentage(monthlyAllSalary, monthlySalary, ikukyuPlan));
-    childTime.text(withChildTime(workTime, ikukyuPlan));
-    childTimeMonth.text(withChildTime(workTime, ikukyuPlan)/24);
-}
-
-// chart.js options
-var chartOptions =
-    {
-        chartArea: {
-        },
+// chart: チャートモジュール（chart.js使用）
+Ikusim.chart.BarYenOptions = function(min, max) {
+    return {
+        chartArea: {},
         maintainAspectRatio: false,
         scales: {
             yAxes: [{
                 ticks: {
+                    // 最小値、最高値
+                    min: min,
+                    max: max,
                     // 目盛をコンマ＆円表記
                     callback: function(value, index, values) {
-                        // return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') +' 円';
-                        return addCommaYen(value);
+                        return Ikusim.util.yen(value);
                     }
                 },
                 gridLines: {
@@ -164,16 +176,16 @@ var chartOptions =
         tooltips: {
             callbacks: {
                 label: function(tooltipItem, data){
-                    return addCommaYen(tooltipItem.yLabel);
+                    return Ikusim.util.yen(tooltipItem.yLabel);
                 }
             }
         }
-    }
+    };
+};
 
-var chartOptions2 =
-    {
-        chartArea: {
-        },
+Ikusim.chart.BarTimeOptions = function(min, max) {
+    return  {
+        chartArea: {},
         maintainAspectRatio: false,
         scales: {
             yAxes: [{
@@ -204,60 +216,181 @@ var chartOptions2 =
                 }
             }
         }
-    }
+    };
+};
 
-var pieChartOptions =
-    {
+Ikusim.chart.PieOptions = function() {
+    return {
         cutoutPercentage: 50,
         maintainAspectRatio: false,
         tooltips: {
             callbacks: {
                 label: function(tooltipItem, data){
-                    return addCommaYen(data.datasets[0].data[tooltipItem.index]);
+                    return Ikusim.util.yen(data.datasets[0].data[tooltipItem.index]);
                 }
             }
         }
-    }
+    };
+};
 
-// chart.js グラフ描画
-function graph(start, end, ikukyuPlan, monthlyAllSalary, monthlySalary, workTime) {
-    window.myBar.data = salaryData(start, ikukyuPlan, monthlyAllSalary);
-    window.myBar.update();
-    window.myBar2.data = withChildTimeData(workTime, ikukyuPlan);
-    window.myBar2.update();
-    window.myPieChart.data = salaryPercentageData(monthlyAllSalary, monthlySalary, ikukyuPlan);
-    window.myPieChart.update();
+// table: テーブル更新
+Ikusim.table = (function(obj) {
+    var $table = $('[data-id="salaryTable"]').find("tbody");
+    var data = obj.getBenefitData();
+    $table.html("");
 
-    salaryTable.find("tbody").html("");
-    $.each(window.myBar.data.detail_labels, function(index, data) {
-        salaryTable.find("tbody").append('<tr><th scope="row">'+ this + '</th><td class="td2">' + addCommaYen(window.myBar.data.datasets[0].data[index]) + '</td><td class="td3">'+ addCommaYen(monthlySalary) + '</td></tr>');
+    $.each(data.detail_labels, function(index, item) {
+        $table.append('<tr><th scope="row">'+ this + '</th><td class="td2">' + Ikusim.util.yen(data.datasets[0].data[index]) + '</td><td class="td3">'+ Ikusim.util.yen(obj.hometake) + '</td></tr>');
     });
 
-    setTimeout(function(){
-        createImage("#capture", "ikusim-money");
-        createImage("#capture2", "ikusim-childtime");
-	  }, 500);
+    $table.append('<tr><th scope="row">合計</th><td class="td2">' + Ikusim.util.yen(obj.getSumBenefit()) + '</td><td class="td3">'+ Ikusim.util.yen(obj.hometake * obj.plan) + '</td></tr>');
 
+});
+
+// MyChart: グラフ描画用クラス
+// クラス
+Ikusim.MyChart = function() {
+    this.ctx = document.getElementById("canvas").getContext("2d");
+    this.ctx2 = document.getElementById("canvas-2").getContext("2d");
+    this.ctx3 = document.getElementById("canvas-3").getContext("2d");
 }
 
-// データ作成 給付金
-function salaryData(start, month, salary) {
-    var salary67 = salary * 0.67;
-    var salary50 = salary * 0.50;
+Ikusim.MyChart.prototype.createChart = function(data, options) {
+    return new Chart(this.ctx, {
+        type: 'bar', // ここは bar にする必要があります
+        data: data,
+        options: options
+    });
+};
 
+// Papa: パパ用クラス
+// クラス&コンストラクタ
+Ikusim.Papa = function() {
+    var $birthday = $('[data-id="inputBirthday"]');
+    var $twins = $('[data-id="inputTwins"]');
+    var $gross = $('[data-id="inputMonthlyAllSalary"]');
+    var $hometake = $('[data-id="inputMonthlySalary"]');
+    var $plan =  $('[data-id="inputIkukyuPlan"]');
+    var $worktime =  $('[data-id="inputWorkTime"]');
+
+    // style用メンバ変数
+    this.mainColor = "rgba(14,78,173,0.85)";
+    this.accentColor = "rgba(255,152,0,0.8)";
+    this.gradient0 = "#000046";
+    this.gradient1 = "#1CB5E0";
+
+    //メンバ変数、thisはインスタンス
+    this.start = $birthday.val();
+    this.gross = $gross.val();
+    this.hometake = $hometake.val();
+    this.plan = $plan.val();
+    this.worktime = $worktime.val();
+
+    // 最低額、最高額をチェック
+    if(this.gross >= 447300) {
+        this.gross = 447300;
+    } else if(this.gross <= 74100) {
+        this.gross = 74100;
+    }
+};
+
+// 定数
+Ikusim.Papa.X67 = 0.67;
+Ikusim.Papa.X50 = 0.50;
+
+// メソッド、getXXXはデータ算出用
+Ikusim.Papa.prototype.getStartDate = function() {
+    return moment(this.start);
+};
+
+Ikusim.Papa.prototype.getEndDate = function() {
+    return moment(this.start).add(this.plan, "M").add(-1, "d");
+};
+
+Ikusim.Papa.prototype.getPlan = function() {
+    var $inputIkukyuPlan =  $('[data-id="inputIkukyuPlan"]');
+    return $inputIkukyuPlan.find("option:selected").text();
+};
+
+Ikusim.Papa.prototype.getGross67 = function() {
+    return this.gross * Ikusim.Papa.X67;
+};
+
+Ikusim.Papa.prototype.getGross50 = function() {
+    return this.gross * Ikusim.Papa.X50;
+};
+
+Ikusim.Papa.prototype.getSumBenefit = function() {
+    var gross67 = this.getGross67();
+    var gross50 = this.getGross50();
+    var month = this.plan;
+
+    return (month <= 6 ? gross67 * month : gross67 * (month - 6)) + (month <= 6 ? 0 : gross50 * (month - 6));
+};
+
+Ikusim.Papa.prototype.getSumHometake = function() {
+    return this.hometake * this.plan;
+};
+
+Ikusim.Papa.prototype.getSumSpendTime = function() {
+    return this.worktime * 20 * this.plan;
+};
+
+Ikusim.Papa.prototype.getPerBenefit = function() {
+    return ((this.getSumBenefit() / this.getSumHometake()) * 100).toFixed(1);
+};
+
+// メソッド、changeXXXは表示更新用
+Ikusim.Papa.prototype.changePlan = function() {
+    var $papaIkukyuStart = $('[data-id="papaIkukyuStart"]');
+    var $papaIkukyuEnd = $('[data-id="papaIkukyuEnd"]');
+    var $selectedIkukyuPlan = $('[data-id="selectedIkukyuPlan"]');
+
+    $papaIkukyuStart.text(this.getStartDate().format("YYYY年M月D日"));
+    $papaIkukyuEnd.text(this.getEndDate().format("YYYY年MM月D日"));
+    $selectedIkukyuPlan.text(this.getPlan());
+};
+
+Ikusim.Papa.prototype.changeSumBenefit = function() {
+    var $sumBenefit = $('[data-id="kyufu"]');
+    $sumBenefit.html(Ikusim.util.yen(this.getSumBenefit()));
+};
+
+Ikusim.Papa.prototype.changePerBenefit = function() {
+    var $benefitDif = $('[data-id="allSalary"]');
+    $benefitDif.html(this.getPerBenefit());
+};
+
+Ikusim.Papa.prototype.changeSumSpendTime = function() {
+    var $childTime = $('[data-id="childTime"]');
+    var $childTimeDay = $('[data-id="childTimeMonth"]');
+    var $workTime = $('[data-id="workTime"]');
+
+    $childTime.html(this.getSumSpendTime());
+    $childTimeDay.html(this.getSumSpendTime() / 24);
+    $workTime.html(this.worktime);
+
+};
+
+// メソッド、xxxDataはchart用のデータ・セット
+Ikusim.Papa.prototype.getBenefitData = function() {
     // 給付金データ
     var salaryArray = [];
-    for(var i = 1; i <= month; i++) {
+    var start = this.getStartDate();
+    var gross67 = this.getGross67();
+    var gross50 = this.getGross50();
+
+    for(var i = 1; i <= this.plan; i++) {
         if(salaryArray.length % 2 == 0) {
-            salaryArray.push( i <= 6 ? salary67 * 2 : salary50 * 2);
+            salaryArray.push( i <= 6 ? gross67 * 2 : gross50 * 2);
         } else {
             salaryArray.push(0);
         }
 
-        if(i == month) {
+        if(i == this.plan) {
             salaryArray.pop();
             if(salaryArray.length % 2 == 0) {
-                salaryArray.push( i <= 6 ? salary67 : salary50);
+                salaryArray.push( i <= 6 ? gross67 : gross50);
             }
         }
     }
@@ -271,41 +404,32 @@ function salaryData(start, month, salary) {
         detailLabels.push(start.clone().add(i, "M").format("YY年M月"));
     }
 
-    var barChartData = {
+    var benefitData = {
         labels: labels,
         detail_labels: detailLabels,
         datasets: [
             {
                 label: '育児休業給付金',
                 data: salaryArray,
-                borderColor : mainColor,
-                backgroundColor : mainColor
+                borderColor : this.mainColor,
+                backgroundColor : this.mainColor
             }
         ]
     };
-    return barChartData;
-}
+    return benefitData;
+};
 
-// データ作成 給付金割合
-function salaryPercentage(allSalary, salary, month) {
-    var salary67 = allSalary * 0.67;
-    var salary50 = allSalary * 0.50;
-    salaryTable.find("tbody").append('<tr><th scope="row">合計</th><td class="td2">' + addCommaYen(sumKyufu(allSalary, month)) + '</td><td class="td3">'+ addCommaYen(salary * month) + '</td></tr>');
+Ikusim.Papa.prototype.getBenefitDifData = function() {
+    var salary67 = this.getGross67();
+    var salary50 = this.getGross50();
+    var yearSalary = this.getSumBenefit();
 
-
-    return ((sumKyufu(allSalary, month) / (salary * month)) * 100).toFixed(1);
-}
-
-function salaryPercentageData(allSalary, salary, month) {
-    var salary67 = allSalary * 0.67;
-    var salary50 = allSalary * 0.50;
-    var yearSalary = sumKyufu(allSalary, month);
-    kyufu.text(addCommaYen(yearSalary));
+    // kyufu.text(addCommaYen(yearSalary));
 
     return {
         datasets: [{
-            data: [yearSalary, salary * month - yearSalary],
-            backgroundColor: [mainColor, "#dddddd"]
+            data: [yearSalary, this.hometake * this.plan - yearSalary],
+            backgroundColor: [this.mainColor, "#dddddd"]
         }],
 
         // これらのラベルは凡例とツールチップに表示されます。
@@ -314,86 +438,42 @@ function salaryPercentageData(allSalary, salary, month) {
             '減るお金'
         ]
     };
-}
+};
 
-function sumKyufu(allSalary, month) {
-    return (month <= 6 ? allSalary * 0.67 * month : allSalary * 0.67 * (month - 6)) + (month <= 6 ? 0 : allSalary * 0.50 * (month - 6));
-}
-
-// データ作成 子どもとの時間
-function withChildTime(workTime, month){
-    return workTime * 20 * month;
-}
-
-function withChildTimeData(workTime, month){
+Ikusim.Papa.prototype.getSpendTimeDifData = function() {
     return  {
-        labels: ['休まない','休む'],
         datasets: [
             {
                 label: '子どもと過ごす時間',
-                data: [(24 - 8 - workTime) * 20 * month, (24 - 8) * 20 * month],
-                borderColor : ["#dddddd", mainColor],
-                backgroundColor : ["#dddddd", mainColor]
+                data: [(24 - 8 - this.worktime) * 20 * this.plan, (24 - 8) * 20 * this.plan],
+                borderColor : ["#dddddd", this.mainColor],
+                backgroundColor : ["#dddddd", this.mainColor]
             }
-        ]
+        ],
+        labels: ['休まない','休む']
     };
-}
-
-// カンマ、単位（円）付与
-function addCommaYen(item) {
-    return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') +' 円';
-}
-
-// 画像作成
-function createImage(element, btn) {
-    html2canvas(document.querySelector(element)).then(canvas => {
-        // document.body.appendChild(canvas);
-        canvasData = canvas;
-        document.getElementById(btn).href = canvasData.toDataURL();
-    });
-}
-
-// サンプルデータ
-var barChartData = {
-    labels: ['5月','6月','7月','8月','9月','10月'],
-    datasets: [
-        {
-            label: 'サンプル',
-            data: ['240000','240000','240000','240000','240000','240000'
-                  ],
-            borderColor : "rgba(14,78,173,0.85)",
-            backgroundColor : mainColor
-        },
-        {
-            label: 'サンプル',
-            data: ['210000','210000','210000','210000','210000','210000'
-                  ],
-            borderColor : "rgba(54,164,235,0.8)",
-            backgroundColor : "rgba(54,164,235,0.5)"
-        },
-    ]
 };
 
-var barChartData2 = {
-    labels: ['このまま','育休'],
-    datasets: [
-        {
-            label: '子どもと過ごす時間',
-            data: ['1000','2000'],
-            borderColor: ['#dddddd', mainColor],
-            backgroundColor: ['#dddddd', mainColor]
-        }
-    ]
+// 継承用関数
+Ikusim.inherits = function(childCtor, parentCtor) {
+  // 子クラスの prototype のプロトタイプとして 親クラスの
+  // prototype を指定することで継承が実現される
+  Object.setPrototypeOf(childCtor.prototype, parentCtor.prototype);
 };
 
-var pieChartData = {
-    datasets: [{
-        data: [20, 10],
-        backgroundColor: [mainColor, "#dddddd"]
-    }],
-    // これらのラベルは凡例とツールチップに表示されます。
-    labels: [
-        '育児休業給付金',
-        '手取りから減る金額'
-    ]
+
+// Sample: サンプル用クラス
+Ikusim.Sample = function(start, gross, hometake, plan, worktime) {
+    // 親のコンストラクタを呼び出す。呼び出しの際に "this" が
+    // 適切に設定されるようにする (Function#call を使用)
+    Ikusim.Papa.call(this);
+
+    // Sample 固有のプロパティを初期化する
+    this.start = start;
+    this.gross = gross;
+    this.hometake = hometake;
+    this.plan = plan;
+    this.worktime = worktime;
 };
+
+Ikusim.inherits(Ikusim.Sample, Ikusim.Papa);
