@@ -81,6 +81,12 @@ Ikusim.event.bind = (function() {
     var $exampleResultsH2 = $('[data-id="exampleResultsH2"]');
     var $resultsH2 = $('[data-id="resultsH2"]');
     var $canvasData = null;
+    var $plan = $('[data-id="inputIkukyuPlan"]');
+    var $papaMama = $("[name=inputPapaMama]:checked");
+
+    $plan.change(
+    );
+
 
     $startSimButton.on('click', function() {
         $results.css({
@@ -116,9 +122,11 @@ Ikusim.event.output = (function(obj) {
 
 //
 Ikusim.event.start = (function() {
-    var papa =  new Ikusim.Papa();
-    Ikusim.event.chartUpdate(papa);
-    Ikusim.event.output(papa);
+    var $papaMama = $("[name=inputPapaMama]:checked").val();
+    var target =  $papaMama === "papa" ? new Ikusim.Papa() : new Ikusim.Mama();
+
+    Ikusim.event.chartUpdate(target);
+    Ikusim.event.output(target);
 });
 
 
@@ -243,7 +251,7 @@ Ikusim.table = (function(obj) {
         $table.append('<tr><th scope="row">'+ this + '</th><td class="td2">' + Ikusim.util.yen(data.datasets[0].data[index]) + '</td><td class="td3">'+ Ikusim.util.yen(obj.hometake) + '</td></tr>');
     });
 
-    $table.append('<tr><th scope="row">合計</th><td class="td2">' + Ikusim.util.yen(obj.getSumBenefit()) + '</td><td class="td3">'+ Ikusim.util.yen(obj.hometake * obj.plan) + '</td></tr>');
+    $table.append('<tr><th scope="row">合計</th><td class="td2">' + Ikusim.util.yen(obj.getSumBenefit()) + '</td><td class="td3">'+ Ikusim.util.yen(obj.getSumHometake()) + '</td></tr>');
 
 });
 
@@ -272,6 +280,7 @@ Ikusim.Papa = function() {
     var $hometake = $('[data-id="inputMonthlySalary"]');
     var $plan =  $('[data-id="inputIkukyuPlan"]');
     var $worktime =  $('[data-id="inputWorkTime"]');
+    var $papamama = $("[name=inputPapaMama]:checked");
 
     // style用メンバ変数
     this.mainColor = "rgba(14,78,173,0.85)";
@@ -285,6 +294,7 @@ Ikusim.Papa = function() {
     this.hometake = $hometake.val();
     this.plan = $plan.val();
     this.worktime = $worktime.val();
+    this.papamama = $papamama.val();
 
     // 最低額、最高額をチェック
     if(this.gross >= 447300) {
@@ -324,16 +334,30 @@ Ikusim.Papa.prototype.getSumBenefit = function() {
     var gross67 = this.getGross67();
     var gross50 = this.getGross50();
     var month = this.plan;
+    var sum = 0;
+    var calcMonth = month;
 
-    return (month <= 6 ? gross67 * month : gross67 * (month - 6)) + (month <= 6 ? 0 : gross50 * (month - 6));
+    if (this.papamama === "mama") {
+        calcMonth = month - 2;
+    }
+
+    sum = (month <= 6 ? gross67 * calcMonth : gross67 * 6) + (month <= 6 ? 0 : gross50 * (calcMonth - 6));
+
+    return sum;
+};
+
+Ikusim.Papa.prototype.getSumSankyuBenefit = function() {
+    return (this.gross / 30 / 3 * 2 * 98).toFixed(0);
 };
 
 Ikusim.Papa.prototype.getSumHometake = function() {
-    return this.hometake * this.plan;
+    // return this.hometake * this.plan;
+    return this.papamama === "papa" ? this.hometake * this.plan : this.hometake * (this.plan - 2);
 };
 
 Ikusim.Papa.prototype.getSumSpendTime = function() {
-    return this.worktime * 20 * this.plan;
+    // return this.worktime * 20 * this.plan;
+    return this.papamama === "papa" ? this.worktime * 20 * this.plan : this.worktime * 20 * (this.plan - 2);
 };
 
 Ikusim.Papa.prototype.getPerBenefit = function() {
@@ -369,39 +393,61 @@ Ikusim.Papa.prototype.changeSumSpendTime = function() {
     $childTime.html(this.getSumSpendTime());
     $childTimeDay.html(this.getSumSpendTime() / 24);
     $workTime.html(this.worktime);
-
 };
 
-// メソッド、xxxDataはchart用のデータ・セット
 Ikusim.Papa.prototype.getBenefitData = function() {
     // 給付金データ
     var salaryArray = [];
     var start = this.getStartDate();
     var gross67 = this.getGross67();
     var gross50 = this.getGross50();
+    var maxMonth = 12;
 
-    for(var i = 1; i <= this.plan; i++) {
+    for(var i = 1; i <= maxMonth; i++) {
         if(salaryArray.length % 2 == 0) {
             salaryArray.push( i <= 6 ? gross67 * 2 : gross50 * 2);
         } else {
             salaryArray.push(0);
         }
-
-        if(i == this.plan) {
-            salaryArray.pop();
-            if(salaryArray.length % 2 == 0) {
-                salaryArray.push( i <= 6 ? gross67 : gross50);
-            }
-        }
     }
+
     salaryArray.unshift(0, 0);
+
+    if(this.papamama === "mama") {
+        salaryArray.unshift(0, 0, 0);
+        salaryArray[4] = this.getSumSankyuBenefit();
+    }
+
+    salaryArray = this.calcBenefitData(salaryArray);
+
 
     // ラベル
     var labels = [];
     var detailLabels = [];
+
     for(var i = 0; i <=  salaryArray.length - 1; i++) {
         labels.push(start.clone().add(i, "M").format("M月"));
         detailLabels.push(start.clone().add(i, "M").format("YY年M月"));
+    }
+
+    // ママ用ラベル追加
+    if(this.papamama === "mama") {
+        var color = [];
+        var sankyuBenefitArray = [];
+
+        for(var i = 0; i < salaryArray.length; i++) {
+            color.push(this.mainColor);
+            sankyuBenefitArray.push(0);
+        }
+
+        color[4] = "#eeeeee";
+
+        labels.unshift(start.clone().add(-1, "M").format("M月"));
+        detailLabels.unshift(start.clone().add(-1, "M").format("YY年M月"));
+        labels.pop();
+        detailLabels.pop();
+    } else {
+        var color = this.mainColor;
     }
 
     var benefitData = {
@@ -411,24 +457,44 @@ Ikusim.Papa.prototype.getBenefitData = function() {
             {
                 label: '育児休業給付金',
                 data: salaryArray,
-                borderColor : this.mainColor,
-                backgroundColor : this.mainColor
+                borderColor : color,
+                backgroundColor : color
             }
         ]
     };
+
     return benefitData;
+};
+
+// メソッド、xxxDataはchart用のデータ・セット
+Ikusim.Papa.prototype.calcBenefitData = function(data) {
+    var oneMonth = this.papamama === "papa" ? 3 : 6;
+    var otherMonth = this.papamama === "papa" ? Number(this.plan) + 1 : Number(this.plan) + 4;
+
+    if (this.plan === "1") {
+        data = data.slice(0, oneMonth);
+        data[data.length - 1] = this.getGross67();
+    } else if(this.plan % 2 === 1) {
+        data = data.slice(0, otherMonth);
+        this.plan > 6 ? data[data.length - 1] = this.getGross50() : data[data.length - 1] = this.getGross67();
+    } else {
+        data = data.slice(0, otherMonth);
+    }
+
+    return data;
 };
 
 Ikusim.Papa.prototype.getBenefitDifData = function() {
     var salary67 = this.getGross67();
     var salary50 = this.getGross50();
     var yearSalary = this.getSumBenefit();
+    var yearHometake = this.getSumHometake();
 
     // kyufu.text(addCommaYen(yearSalary));
 
     return {
         datasets: [{
-            data: [yearSalary, this.hometake * this.plan - yearSalary],
+            data: [yearSalary, yearHometake - yearSalary],
             backgroundColor: [this.mainColor, "#dddddd"]
         }],
 
@@ -477,3 +543,62 @@ Ikusim.Sample = function(start, gross, hometake, plan, worktime) {
 };
 
 Ikusim.inherits(Ikusim.Sample, Ikusim.Papa);
+
+// Mama: ママ用クラス
+// クラス&コンストラクタ
+Ikusim.Mama = function() {
+    // style用メンバ変数
+    this.mainColor = "rgba(14,78,173,0.85)";
+    this.accentColor = "rgba(255,152,0,0.8)";
+    this.gradient0 = "#000046";
+    this.gradient1 = "#1CB5E0";
+
+    Ikusim.Papa.call(this);
+};
+
+// メソッド、getXXXはデータ算出用
+Ikusim.Mama.prototype.getBeforeBirthStartDate = function() {
+    if ($twins.prop('checked')) {
+        return moment(this.start).add(-97, "d");
+    } else {
+        return moment(this.start).add(-41, "d");
+    }
+};
+
+Ikusim.Mama.prototype.getBeforeBirthEndDate = function() {
+    return moment(this.start);
+};
+
+Ikusim.Mama.prototype.getAfterBirthStartDate = function() {
+    return moment(this.start).add(1, "d");
+};
+
+Ikusim.Mama.prototype.getAfterBirthEndDate = function() {
+    return moment(this.start).add(56, "d");
+};
+
+Ikusim.Mama.prototype.getIkukyuStartDate = function() {
+    return moment(this.start).add(57, "d");
+};
+
+Ikusim.Mama.prototype.getIkukyuEndDate = function() {
+    return moment(this.start).add(1, "y").add(-1, "d");
+};
+
+Ikusim.Mama.prototype.changePlan = function() {
+    var $mamaBeforeBirthStart = $('[data-id="mamaBirthStart"]');
+    var $mamaBeforeBirthEnd = $('[data-id="mamaBeforeBirthEnd"]');
+    var $mamaAfterBirthStart = $('[data-id="mamaAfterBirthStart"]');
+    var $mamaAfterBirthEnd = $('[data-id="mamaAfterBirthEnd"]');
+    var $mamaIkukyuStart = $('[data-id="mamaIkukyuStart"]');
+    var $mamaIkukyuEnd = $('[data-id="mamaIkukyuEnd"]');
+
+    var $selectedIkukyuPlan = $('[data-id="selectedIkukyuPlan"]');
+
+    $mamaIkukyuStart.text(this.getIkukyuStartDate().format("YYYY年M月D日"));
+    $mamaIkukyuEnd.text(this.getIkukyuEndDate().format("YYYY年MM月D日"));
+
+    $selectedIkukyuPlan.text(this.getPlan());
+};
+
+Ikusim.inherits(Ikusim.Mama, Ikusim.Papa);
