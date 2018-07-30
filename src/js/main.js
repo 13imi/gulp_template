@@ -341,7 +341,7 @@ Ikusim.Papa.prototype.getSumBenefit = function() {
         calcMonth = month - 2;
     }
 
-    sum = (month <= 6 ? gross67 * calcMonth : gross67 * 6) + (month <= 6 ? 0 : gross50 * (calcMonth - 6));
+    sum = (month <= 6 ? gross67 * month : gross67 * 6) + (month <= 6 ? 0 : gross50 * (month - 6));
 
     return sum;
 };
@@ -351,13 +351,13 @@ Ikusim.Papa.prototype.getSumSankyuBenefit = function() {
 };
 
 Ikusim.Papa.prototype.getSumHometake = function() {
-    // return this.hometake * this.plan;
-    return this.papamama === "papa" ? this.hometake * this.plan : this.hometake * (this.plan - 2);
+    return this.hometake * this.plan;
+    // return this.papamama === "papa" ? this.hometake * this.plan : this.hometake * (this.plan - 2);
 };
 
 Ikusim.Papa.prototype.getSumSpendTime = function() {
-    // return this.worktime * 20 * this.plan;
-    return this.papamama === "papa" ? this.worktime * 20 * this.plan : this.worktime * 20 * (this.plan - 2);
+    return this.worktime * 20 * this.plan;
+    // return this.papamama === "papa" ? this.worktime * 20 * this.plan : this.worktime * 20 * (this.plan - 2);
 };
 
 Ikusim.Papa.prototype.getPerBenefit = function() {
