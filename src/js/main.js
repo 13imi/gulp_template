@@ -83,9 +83,18 @@ Ikusim.event.bind = (function() {
     var $canvasData = null;
     var $plan = $('[data-id="inputIkukyuPlan"]');
     var $papaMama = $("[name=inputPapaMama]:checked");
+    var $pama = $("[name=inputPapaMama]");
 
-    $plan.change(
-    );
+    $pama.change(function() {
+        var pama = $("[name=inputPapaMama]:checked");
+        if(pama.val() === "mama") {
+            $plan.children().last().val(10);
+            $plan.children().last().text("10ヶ月エキスパートプラン");
+        } else {
+            $plan.children().last().val(12);
+            $plan.children().last().text("12ヶ月エキスパートプラン");
+        }
+    });
 
 
     $startSimButton.on('click', function() {
