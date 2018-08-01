@@ -110,6 +110,14 @@ Ikusim.event.bind = (function() {
     });
 });
 
+Ikusim.event.start = (function() {
+    var $papaMama = $("[name=inputPapaMama]:checked").val();
+    var target =  $papaMama === "papa" ? new Ikusim.Papa() : new Ikusim.Mama();
+
+    Ikusim.event.chartUpdate(target);
+    Ikusim.event.output(target);
+});
+
 Ikusim.event.chartUpdate = (function(obj) {
     Ikusim.mychart.bar1.update(obj.getBenefitData(), Ikusim.chart.BarYenOptions());
 		Ikusim.mychart.pie1.update(obj.getBenefitDifData(), Ikusim.chart.PieOptions());
@@ -130,14 +138,6 @@ Ikusim.event.output = (function(obj) {
 });
 
 //
-Ikusim.event.start = (function() {
-    var $papaMama = $("[name=inputPapaMama]:checked").val();
-    var target =  $papaMama === "papa" ? new Ikusim.Papa() : new Ikusim.Mama();
-
-    Ikusim.event.chartUpdate(target);
-    Ikusim.event.output(target);
-});
-
 
  // util: 共通モジュール
 Ikusim.util.smoothScroll = (function() {
@@ -323,7 +323,7 @@ Ikusim.Papa.prototype.getStartDate = function() {
 };
 
 Ikusim.Papa.prototype.getEndDate = function() {
-    return moment(this.start).add(this.plan, "M").add(-1, "d");
+    return moment(this.start).clone().add(this.plan, "M").add(-1, "d");
 };
 
 Ikusim.Papa.prototype.getPlan = function() {
@@ -375,9 +375,15 @@ Ikusim.Papa.prototype.getPerBenefit = function() {
 
 // メソッド、changeXXXは表示更新用
 Ikusim.Papa.prototype.changePlan = function() {
+    var $papabox = $('.papabox');
+    var $mamabox = $('.mamabox');
+    var $selectedIkukyuPlan = $('[data-id="selectedIkukyuPlan"]');
     var $papaIkukyuStart = $('[data-id="papaIkukyuStart"]');
     var $papaIkukyuEnd = $('[data-id="papaIkukyuEnd"]');
     var $selectedIkukyuPlan = $('[data-id="selectedIkukyuPlan"]');
+
+    $papabox.removeClass("box-invisible").addClass("box-visible");
+    $mamabox.removeClass("box-visible").addClass("box-invisible");
 
     $papaIkukyuStart.text(this.getStartDate().format("YYYY年M月D日"));
     $papaIkukyuEnd.text(this.getEndDate().format("YYYY年MM月D日"));
@@ -567,10 +573,12 @@ Ikusim.Mama = function() {
 
 // メソッド、getXXXはデータ算出用
 Ikusim.Mama.prototype.getBeforeBirthStartDate = function() {
+    var $twins = $('[data-id="inputTwins"]');
+
     if ($twins.prop('checked')) {
-        return moment(this.start).add(-97, "d");
+        return moment(this.start).clone().add(-97, "d");
     } else {
-        return moment(this.start).add(-41, "d");
+        return moment(this.start).clone().add(-41, "d");
     }
 };
 
@@ -579,23 +587,25 @@ Ikusim.Mama.prototype.getBeforeBirthEndDate = function() {
 };
 
 Ikusim.Mama.prototype.getAfterBirthStartDate = function() {
-    return moment(this.start).add(1, "d");
+    return moment(this.start).clone().add(1, "d");
 };
 
 Ikusim.Mama.prototype.getAfterBirthEndDate = function() {
-    return moment(this.start).add(56, "d");
+    return moment(this.start).clone().add(56, "d");
 };
 
 Ikusim.Mama.prototype.getIkukyuStartDate = function() {
-    return moment(this.start).add(57, "d");
+    return moment(this.start).clone().add(57, "d");
 };
 
 Ikusim.Mama.prototype.getIkukyuEndDate = function() {
-    return moment(this.start).add(1, "y").add(-1, "d");
+    return moment(this.start).clone().add(1, "y").add(-1, "d");
 };
 
 Ikusim.Mama.prototype.changePlan = function() {
-    var $mamaBeforeBirthStart = $('[data-id="mamaBirthStart"]');
+    var $papabox = $('.papabox');
+    var $mamabox = $('.mamabox');
+    var $mamaBeforeBirthStart = $('[data-id="mamaBeforeBirthStart"]');
     var $mamaBeforeBirthEnd = $('[data-id="mamaBeforeBirthEnd"]');
     var $mamaAfterBirthStart = $('[data-id="mamaAfterBirthStart"]');
     var $mamaAfterBirthEnd = $('[data-id="mamaAfterBirthEnd"]');
@@ -604,6 +614,13 @@ Ikusim.Mama.prototype.changePlan = function() {
 
     var $selectedIkukyuPlan = $('[data-id="selectedIkukyuPlan"]');
 
+    $papabox.removeClass("box-visible").addClass("box-invisible");
+    $mamabox.removeClass("box-invisible").addClass("box-visible");
+
+    $mamaBeforeBirthStart.text(this.getBeforeBirthStartDate().format("YYYY年M月D日"));
+    $mamaBeforeBirthEnd.text(this.getBeforeBirthEndDate().format("YYYY年M月D日"));
+    $mamaAfterBirthStart.text(this.getAfterBirthStartDate().format("YYYY年M月D日"));
+    $mamaAfterBirthEnd.text(this.getAfterBirthEndDate().format("YYYY年M月D日"));
     $mamaIkukyuStart.text(this.getIkukyuStartDate().format("YYYY年M月D日"));
     $mamaIkukyuEnd.text(this.getIkukyuEndDate().format("YYYY年MM月D日"));
 

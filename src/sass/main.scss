@@ -101,6 +101,14 @@ $font-main: #444;
     /* border: 1px dotted gray; */
   }
 
+  .box-visible {
+    display: block;
+  }
+
+  .box-invisible {
+    display: none;
+  }
+
   .chart-container,
   .chart-container-2,
   .chart-container-3 {

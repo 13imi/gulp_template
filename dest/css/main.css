@@ -75,6 +75,10 @@
   color: #444; }
   #container-ikusim #canvas {
     /* border: 1px dotted gray; */ }
+  #container-ikusim .box-visible {
+    display: block; }
+  #container-ikusim .box-invisible {
+    display: none; }
   #container-ikusim .chart-container,
   #container-ikusim .chart-container-2,
   #container-ikusim .chart-container-3 {
