@@ -3,8 +3,14 @@ window.onload = function() {
     Ikusim.mychart.bar1 = new Ikusim.Chart("canvas");
     Ikusim.mychart.pie1 = new Ikusim.Chart("canvas-2");
     Ikusim.mychart.bar2 = new Ikusim.Chart("canvas-3");
-    Ikusim.event.onload();
+
+    //
+    Ikusim.event.constructor();
+    Ikusim.event.sampleSet();
+    Ikusim.event.domBind();
+    // Ikusim.event.onload();
     Ikusim.util.smoothScroll();
+    // Ikusim.util.validator();
 };
 
 // CSS用変数
@@ -64,7 +70,13 @@ Ikusim.Chart.prototype.update = function(data, options) {
 };
 
 // event: 制御
-Ikusim.event.onload = (function() {
+// event.constructor: 初期化処理
+Ikusim.event.constructor = (function() {
+    Ikusim.event.sampleSet();
+    Ikusim.event.domBind();
+});
+
+Ikusim.event.sampleSet = (function() {
     var sample = new Ikusim.Sample("2018-07-22", "290000", "240000", 12, 9);
 
     Ikusim.mychart.bar1.create("bar", sample.getBenefitData(), Ikusim.chart.BarYenOptions());
@@ -72,10 +84,9 @@ Ikusim.event.onload = (function() {
     Ikusim.mychart.bar2.create("bar", sample.getSpendTimeDifData(), Ikusim.chart.BarTimeOptions());
 
     Ikusim.event.output(sample);
-    Ikusim.event.bind();
 });
 
-Ikusim.event.bind = (function() {
+Ikusim.event.domBind = (function() {
     var $startSimButton = $('[data-id="startSim"]');
     var $results = $('[data-id="ikusimResults"]');
     var $exampleResultsH2 = $('[data-id="exampleResultsH2"]');
@@ -84,6 +95,28 @@ Ikusim.event.bind = (function() {
     var $plan = $('[data-id="inputIkukyuPlan"]');
     var $papaMama = $("[name=inputPapaMama]:checked");
     var $pama = $("[name=inputPapaMama]");
+    var $forms = $('.needs-validation');
+
+    var validation = Array.prototype.filter.call($forms, function(form) {
+        form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                $results.css({
+                    "opacity": "1.0",
+                    "pointer-events": "initial"
+                });
+
+                $resultsH2.css("display", "block");
+                $exampleResultsH2.css("display", "none");
+
+                Ikusim.util.smoothScrollMove("#ikusim-results");
+                Ikusim.event.start();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
 
     $pama.change(function() {
         var pama = $("[name=inputPapaMama]:checked");
@@ -95,19 +128,6 @@ Ikusim.event.bind = (function() {
             $plan.children().last().text("12ヶ月エキスパートプラン");
         }
     });
-
-
-    $startSimButton.on('click', function() {
-        $results.css({
-            "opacity": "1.0",
-            "pointer-events": "initial"
-        });
-
-        $resultsH2.css("display", "block");
-        $exampleResultsH2.css("display", "none");
-
-        Ikusim.event.start();
-    });
 });
 
 Ikusim.event.start = (function() {
@@ -118,6 +138,7 @@ Ikusim.event.start = (function() {
     Ikusim.event.output(target);
 });
 
+// event.startから呼び出される
 Ikusim.event.chartUpdate = (function(obj) {
     Ikusim.mychart.bar1.update(obj.getBenefitData(), Ikusim.chart.BarYenOptions());
 		Ikusim.mychart.pie1.update(obj.getBenefitDifData(), Ikusim.chart.PieOptions());
@@ -143,11 +164,36 @@ Ikusim.event.output = (function(obj) {
 Ikusim.util.smoothScroll = (function() {
     $('button[href^="#"]').click(function() {
         var speed = 600;
-        var href= $(this).attr("href");
+        var href = $(this).attr("href");
         var target = $(href == "#" || href == "" ? 'html' : href);
         var position = target.offset().top;
         $('body,html').animate({scrollTop:position}, speed, 'swing');
         return false;
+        // Ikusim.util.smoothScrollMove($(this).attr("href"));
+    });
+});
+
+Ikusim.util.smoothScrollMove = (function(element) {
+    var speed = 600;
+    var href = element;
+    var target = $(href == "#" || href == "" ? 'html' : href);
+    var position = target.offset().top;
+    $('body,html').animate({scrollTop:position}, speed, 'swing');
+    return false;
+});
+
+Ikusim.util.validator = (function() {
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = $('.needs-validation');
+    // Loop over them and prevent submission
+    var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
     });
 });
 
@@ -194,7 +240,7 @@ Ikusim.chart.BarYenOptions = function(min, max) {
             callbacks: {
                 label: function(tooltipItem, data){
                     return Ikusim.util.yen(tooltipItem.yLabel);
-                }
+p                }
             }
         }
     };
@@ -548,6 +594,14 @@ Ikusim.Sample = function(start, gross, hometake, plan, worktime) {
     // 親のコンストラクタを呼び出す。呼び出しの際に "this" が
     // 適切に設定されるようにする (Function#call を使用)
     Ikusim.Papa.call(this);
+
+    var $birthday = $('[data-id="inputBirthday"]');
+    var $gross = $('[data-id="inputMonthlyAllSalary"]');
+    var $hometake = $('[data-id="inputMonthlySalary"]');
+
+    $birthday.val(start);
+    $gross.val(gross);
+    $hometake.val(hometake);
 
     // Sample 固有のプロパティを初期化する
     this.start = start;

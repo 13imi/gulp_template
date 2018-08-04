@@ -45,7 +45,7 @@
                 育休を取得すると雇用保険から育児休業給付金が支払われます。金額は取得から180日は額面の67%、181日以降は50%です。<br/>育休を取得した場合と、このまま働き続けた場合では、あなたの収入が、また子どもと過ごす時間がどのように変わるか見てみましょう。
               </p>
 
-              <form class="form-horizontal ikusim-form">
+              <form class="form-horizontal ikusim-form needs-validation" novalidate>
                 <div class="form-group">
                   <label for="inputEmail3" class="">あなたはパパ？ママ？</label>
                   <div class="custom-control custom-radio">
@@ -61,7 +61,10 @@
                 <div class="form-group">
                   <label for="inputEmail3" class="">出産予定日を教えてください</label>
                   <div class="">
-                    <input type="date" class="form-control form-control-sm" data-id="inputBirthday" placeholder="">
+                    <input type="date" class="form-control form-control-sm" data-id="inputBirthday" placeholder="" required>
+                    <div class="invalid-feedback">
+                      入力してください
+                    </div>
                   </div>
                 </div>
 
@@ -82,10 +85,10 @@
                       <div class="input-group-prepend">
                         <div class="input-group-text">¥</div>
                       </div>
-                      <input type="number" class="form-control form-control-sm" data-id="inputMonthlyAllSalary" placeholder="300000">
-                    </div>
-                    <div class="invalid-feedback">
-                      Looks good!
+                      <input type="number" class="form-control form-control-sm" data-id="inputMonthlyAllSalary" placeholder="290,000" required>
+                      <div class="invalid-feedback">
+                        数値を入力してください
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -97,10 +100,10 @@
                       <div class="input-group-prepend">
                         <div class="input-group-text">¥</div>
                       </div>
-                      <input type="number" class="form-control form-control-sm" data-id="inputMonthlySalary" placeholder="240,000">
-                    </div>
-                    <div class="invalid-feedback">
-                      数値を入力してください。
+                      <input type="number" class="form-control form-control-sm" data-id="inputMonthlySalary" placeholder="240,000" required>
+                      <div class="invalid-feedback">
+                        数値をしてください
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -140,13 +143,14 @@
                     </small>
                   </div>
                 </div>
+                <!-- <button class="btn btn-primary btn-moonview btn-block" type="submit" data-id="startSim">Submit form</button> -->
+                <button type="submit" class="btn btn-moonview btn-block" data-id="startSim">育休を診断する</button>
+                <small id="passwordHelpBlock" class="form-text text-muted">
+                  ※1…通勤費、住宅補助費など会社から支給されるお金の総額を入力してください。標準報酬月額(※2)を入れるのが最適です。<br />
+                  ※2…標準報酬月額とは、保険料と決めるために毎年6月に設定される月収区分です。
+                </small>
               </form>
 
-              <button type="button" class="btn btn-moonview btn-block" data-id="startSim" href="#ikusim-results">育休を診断する</button>
-              <small id="passwordHelpBlock" class="form-text text-muted">
-                ※1…通勤費、住宅補助費など会社から支給されるお金の総額を入力してください。標準報酬月額(※2)を入れるのが最適です。<br />
-                ※2…標準報酬月額とは、保険料と決めるために毎年6月に設定される月収区分です。
-              </small>
 
 
               <br />
@@ -278,6 +282,8 @@
             <div class="col-sm-12">
               <h2 class="h3">よくある質問</h2>
               <h3>育児休業給付金はいつからもらえるの？</h3>
+              <button type="button" class="btn btn-moonview btn-block" href="#ikusim-results">育休を診断する</button>
+
               <h3>育児休業給付金の給付タイミングは？</h3>
               <h3>給付金から社会保険料や所得税が引かれるの？</h3>
               <h3>住民税はどうなるの？</h3>
@@ -285,7 +291,6 @@
             </div>
           </div>
         </article>
-        p
         <aside class="col-md-3">
 
         </aside>
