@@ -95,17 +95,20 @@
     color: #0E4EAD; }
   #container-ikusim table.salary-table {
     font-size: small;
-    margin-bottom: 25px; }
+    margin-bottom: 0px; }
     #container-ikusim table.salary-table .td2,
     #container-ikusim table.salary-table .td3 {
       text-align: right; }
+  #container-ikusim p.margin-bottom {
+    margin-bottom: 25px;
+    /* font-size: small; */ }
   #container-ikusim .ikusim-form {
     margin-bottom: 20px;
     padding: 20px;
     border: 1px #eee solid; }
   #container-ikusim #ikusim-results {
-    opacity: 0.7;
-    pointer-events: none; }
+    /* opacity: 0.7; */
+    /* pointer-events: none; */ }
   #container-ikusim #results-h2 {
     display: none; }
   #container-ikusim button.btn-moonview {
@@ -117,6 +120,10 @@
   #container-ikusim .gray-block {
     background-color: #fafafa;
     padding-bottom: 0.25em; }
+  #container-ikusim .sns-box {
+    margin: 10px 20px;
+    padding: 30px;
+    border: 1px #eee solid; }
   #container-ikusim h2 {
     font-weight: 600;
     font-size: 1.7rem;

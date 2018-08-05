@@ -109,7 +109,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label for="inputEmail3" class="">1日の就労時間(勤務＆通勤)を教えてください</label>
+                  <label for="inputEmail3" class="">1日の就労時間(勤務+通勤)を教えてください</label>
                   <div class="">
                     <div class="input-group">
                       <select class="form-control" id="exampleFormControlSelect1" data-id="inputWorkTime">
@@ -158,14 +158,14 @@
 
 
             <div class="col-sm-12" data-id="exampleResultsH2">
-              <h2 class="h3">例：あなたの育休予想</h2>
+              <h2 class="h3">例：あなたの育休プラン</h2>
               <p>診断すると以下のような育休予想を見ることができます。（こちらはサンプルです）
               </p>
             </div>
 
             <div id="ikusim-results" data-id="ikusimResults">
               <div class="col-sm-12" id="results-h2" data-id="resultsH2">
-                <h2 class="h3">あなたの育休予想</h2>
+                <h2 class="h3">あなたの育休プラン</h2>
                 <p>育休を取り、育児休業給付金を取得した場合の収入をシミュレーションしました。
                 </p>
               </div>
@@ -175,7 +175,7 @@
 
                   <div class="col-sm-12" id="capture">
                     <div class="row">
-                      <div class="col-sm-12 gray-block">
+                      <div class="col-sm-12">
                         <h3>あなたの育休期間は</h3>
 
                         <div class="box29 papabox">
@@ -204,7 +204,7 @@
 
                       <div class="col-sm-12">
                         <h3>あなたの育児休業給付金は</h3>
-                        <p>育休中に合計<span data-id="kyufu"></span>の給付金がもらえます。<br><span class="align-right"><small>算出根拠</small></span></p>
+                        <p>育休中に合計<span class="important-data" data-id="kyufu"></span>の給付金がもらえます。<span data-id="sankyuKyufu"></span><br><span class="align-right"><small data-container="body" data-toggle="popover" data-placement="bottom" data-content="180日以内は(額面月収)×67%、181日以降は(額面月収)×50%で算出。">算出根拠</small></span></p>
                         <div class="chart-container">
                           <canvas id="canvas"></canvas>
                         </div>
@@ -221,22 +221,24 @@
                           </thead>
                           <tbody></tbody>
                         </table>
-                        <small>※合計金額は育児休業給付金期間のみです。</small>
+                        <p class="margin-bottom"><small>※合計金額は育児休業給付金期間のみです。</small></p>
                       </div>
                     </div>
                   </div>
 
-                  <div class="col-sm-12">
+                  <div class="col-sm-12 sns-box gray-block">
+                    <p>診断結果はすぐにLINEで共有できます。</p>
                     <a href="" id="ikusim-money" download="ikusim-money.png">
-                      <button type="button" class="btn btn-moonview btn-block" data-id="">診断結果の画像を保存する</button>
-                      <a href="https://social-plugins.line.me/lineit/share?url=https://13imi.me"><button type="button" class="btn btn-moonview btn-block" data-id="">診断結果をLINEで送る</button></a>
+                      <button type="button" class="btn btn-moonview btn-block" data-id="">1. 診断結果の画像を保存する</button>
+                      <!-- <a href="https://social-plugins.line.me/lineit/share?url=https://13imi.me"><button type="button" class="btn btn-moonview btn-block" data-id="">2. 診断結果をLINEで送る</button></a> -->
+                      <a data-id="lineIntentLink" href="http://line.me/R/msg/text/?テスト。%0aテスト2%0ahttps://13imi.me"><button type="button" class="btn btn-moonview btn-block" data-id="">2. 診断結果をLINEで送る</button></a>
 
                     </a>
                   </div>
 
 
 
-                  <div class="col-sm-12 gray-block" id="capture2">
+                  <div class="col-sm-12" id="capture2">
                     <div class="row">
                       <div class="col-sm-12">
                         <h3>あなたが子どもと過ごせる時間は</h3>
@@ -254,8 +256,9 @@
 
 
                       <div class="col-sm-8">
-                        <p>子どもと過ごせる時間が<span class="important-data important-data-more" data-id="childTime"></span>時間（<span data-id="childTimeMonth"></span>日間分）増えます。<br />
-                          <small>1日あたり出勤&勤務を<span class="" data-id="workTime"></span>時間として、平日のみ計算。</small> </p>
+                        <p>子どもと過ごせる時間が<span class="important-data important-data-more" data-id="childTime"></span>時間（<span data-id="childTimeMonth"></span>日間分）増えます。
+                          <br/><small data-container="body" data-toggle="popover" data-placement="bottom" data-content="(1日あたりの出勤+勤務時間)をもとに平日分の子どもとの時間のみ比較。">算出根拠</small></p>
+                        <!-- <small>1日あたり出勤&勤務を<span class="" data-id="workTime"></span>時間として、平日のみ計算。</small> </p> -->
                       </div>
 
                       <div class="col-sm-4">
@@ -267,11 +270,12 @@
                   </div>
 
 
-                  <div class="col-sm-12 gray-block">
+                  <div class="col-sm-12 gray-block sns-box">
+                    <p>診断結果はすぐにTwitterへ投稿できます。</p>
                     <a href="" id="ikusim-childtime" download="ikusim.png">
-                      <button type="button" class="btn btn-moonview btn-block" data-id="">診断結果の画像を保存する</button>
+                      <button type="button" class="btn btn-moonview btn-block" data-id="">1. 診断結果の画像を保存する</button>
                       <script type="text/javascript" async src="//platform.twitter.com/widgets.js"></script>
-                      <a href="http://twitter.com/intent/tweet?url=https://13imi.me&text=テスト&hashtags=イクシム！"><button type="button" class="btn btn-moonview btn-block" data-id="">診断結果をツイートする</button></a>
+                      <a data-id="twitterIntentLink" href="http://twitter.com/intent/tweet?url=https://13imi.me&text=テスト&hashtags=イクシム！"><button type="button" class="btn btn-moonview btn-block" data-id="">2. 診断結果をツイートする</button></a>
                     </a>
                   </div>
                 </div>

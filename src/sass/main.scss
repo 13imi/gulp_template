@@ -131,12 +131,17 @@ $font-main: #444;
 
   table.salary-table {
     font-size: small;
-    margin-bottom: 25px;
+    margin-bottom: 0px;
 
     .td2,
     .td3 {
       text-align: right
     }
+  }
+
+  p.margin-bottom {
+    margin-bottom: 25px;
+    /* font-size: small; */
   }
 
   .ikusim-form {
@@ -146,8 +151,8 @@ $font-main: #444;
   }
 
   #ikusim-results {
-    opacity: 0.7;
-    pointer-events: none;
+    /* opacity: 0.7; */
+    /* pointer-events: none; */
   }
 
   #results-h2 {
@@ -167,6 +172,12 @@ $font-main: #444;
   .gray-block {
     background-color: #fafafa;
     padding-bottom: 0.25em;
+  }
+
+  .sns-box {
+    margin: 10px 20px;
+    padding: 30px;
+    border: 1px #eee solid;
   }
 
   h2 {

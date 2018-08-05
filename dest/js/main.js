@@ -10,6 +10,7 @@ window.onload = function() {
     Ikusim.event.domBind();
     // Ikusim.event.onload();
     Ikusim.util.smoothScroll();
+    Ikusim.util.popover();
     // Ikusim.util.validator();
 };
 
@@ -79,9 +80,9 @@ Ikusim.event.constructor = (function() {
 Ikusim.event.sampleSet = (function() {
     var sample = new Ikusim.Sample("2018-07-22", "290000", "240000", 12, 9);
 
-    Ikusim.mychart.bar1.create("bar", sample.getBenefitData(), Ikusim.chart.BarYenOptions());
+    Ikusim.mychart.bar1.create("bar", sample.getBenefitData(), Ikusim.chart.BarYenOptions(0, 400000));
     Ikusim.mychart.pie1.create("pie", sample.getBenefitDifData(), Ikusim.chart.PieOptions());
-    Ikusim.mychart.bar2.create("bar", sample.getSpendTimeDifData(), Ikusim.chart.BarTimeOptions());
+    Ikusim.mychart.bar2.create("bar", sample.getSpendTimeDifData(), Ikusim.chart.BarTimeOptions(0, 4000));
 
     Ikusim.event.output(sample);
 });
@@ -103,6 +104,7 @@ Ikusim.event.domBind = (function() {
                 event.preventDefault();
                 event.stopPropagation();
             } else {
+                event.preventDefault();
                 $results.css({
                     "opacity": "1.0",
                     "pointer-events": "initial"
@@ -113,8 +115,10 @@ Ikusim.event.domBind = (function() {
 
                 Ikusim.util.smoothScrollMove("#ikusim-results");
                 Ikusim.event.start();
+
             }
             form.classList.add('was-validated');
+            return false;
         }, false);
     });
 
@@ -140,9 +144,10 @@ Ikusim.event.start = (function() {
 
 // event.startから呼び出される
 Ikusim.event.chartUpdate = (function(obj) {
-    Ikusim.mychart.bar1.update(obj.getBenefitData(), Ikusim.chart.BarYenOptions());
+    var max = obj.papamama ===  "papa" ? obj.getGross67() * 2 : obj.getSumSankyuBenefit();
+    Ikusim.mychart.bar1.update(obj.getBenefitData(), Ikusim.chart.BarYenOptions(0, Ikusim.util.round(max)));
 		Ikusim.mychart.pie1.update(obj.getBenefitDifData(), Ikusim.chart.PieOptions());
-		Ikusim.mychart.bar2.update(obj.getSpendTimeDifData(), Ikusim.chart.BarTimeOptions());
+		Ikusim.mychart.bar2.update(obj.getSpendTimeDifData(), Ikusim.chart.BarTimeOptions(0, Ikusim.util.round(obj.getSumSpendTimeNoWorked())));
 });
 
 Ikusim.event.output = (function(obj) {
@@ -151,11 +156,12 @@ Ikusim.event.output = (function(obj) {
     obj.changePerBenefit();
     obj.changeSumSpendTime();
     obj.changePlan();
+    obj.changeURL();
 
     setTimeout(function(){
         Ikusim.util.capture("#capture", "ikusim-money");
         Ikusim.util.capture("#capture2", "ikusim-childtime");
-	  }, 500);
+	  }, 700);
 });
 
 //
@@ -182,6 +188,26 @@ Ikusim.util.smoothScrollMove = (function(element) {
     return false;
 });
 
+Ikusim.util.popover = (function() {
+    $('[data-toggle="popover"]').popover();
+});
+
+Ikusim.util.twitterUrl = (function(start, end, plan, hometake, spend) {
+    var twitterIntent = "http://twitter.com/intent/tweet?";
+    var url = "https://13imi.me/ikusim1";
+    var text = "--%0a期間：" + start + "〜" + end + "%0aプラン：" + plan + "ヶ月プラン%0a育休で手取りは" + hometake + "％になりますが子どもと過ごす時間は" + spend + "時間増えます。%0a";
+    var hashtags = "俺の育休プラン,私の育休プラン";
+    return twitterIntent + 'text=' + text + '&hashtags=' + hashtags + '&url=' + url;
+});
+
+Ikusim.util.lineUrl = (function(start, end, plan, hometake, spend) {
+    var lineIntent = "http://line.me/R/msg/text/?";
+    var url = "https://13imi.me/ikusim1";
+    var text = "【俺の育休プラン】%0a育休期間：" + start + "〜" + end + "%0aプラン：" + plan + "ヶ月プラン%0a育休で手取りは" + hometake + "％になりますが子どもと過ごす時間は"+ spend + "時間増えます。%0a%0aいくしむ！育休シミュレーター";
+    return lineIntent + text;
+});
+
+
 Ikusim.util.validator = (function() {
     // Fetch all the forms we want to apply custom Bootstrap validation styles to
     var forms = $('.needs-validation');
@@ -195,6 +221,16 @@ Ikusim.util.validator = (function() {
             form.classList.add('was-validated');
         }, false);
     });
+});
+
+Ikusim.util.round = (function(number) {
+    var item = String(number);
+    return Math.ceil(item / (10 ** (item.length - 1))) * (10 ** (item.length - 1));
+});
+
+Ikusim.util.floor = (function(number) {
+    var item = String(number);
+    return Math.floor(item / (10 ** (item.length - 1))) * (10 ** (item.length - 1));
 });
 
 Ikusim.util.yen = (function(item) {
@@ -240,7 +276,7 @@ Ikusim.chart.BarYenOptions = function(min, max) {
             callbacks: {
                 label: function(tooltipItem, data){
                     return Ikusim.util.yen(tooltipItem.yLabel);
-p                }
+                }
             }
         }
     };
@@ -253,8 +289,8 @@ Ikusim.chart.BarTimeOptions = function(min, max) {
         scales: {
             yAxes: [{
                 ticks: {
-                    min: 0,
-                    max: 4000,
+                    min: min,
+                    max: max,
                     // 目盛をコンマ＆円表記
                     callback: function(value, index, values) {
                         return value + "時間";
@@ -306,7 +342,7 @@ Ikusim.table = (function(obj) {
         $table.append('<tr><th scope="row">'+ this + '</th><td class="td2">' + Ikusim.util.yen(data.datasets[0].data[index]) + '</td><td class="td3">'+ Ikusim.util.yen(obj.hometake) + '</td></tr>');
     });
 
-    $table.append('<tr><th scope="row">合計</th><td class="td2">' + Ikusim.util.yen(obj.getSumBenefit()) + '</td><td class="td3">'+ Ikusim.util.yen(obj.getSumHometake()) + '</td></tr>');
+    $table.append('<tr><th scope="row">育休中の合計</th><td class="td2">' + Ikusim.util.yen(obj.getSumBenefit()) + '</td><td class="td3">'+ Ikusim.util.yen(obj.getSumHometake()) + '</td></tr>');
 
 });
 
@@ -402,7 +438,10 @@ Ikusim.Papa.prototype.getSumBenefit = function() {
 };
 
 Ikusim.Papa.prototype.getSumSankyuBenefit = function() {
-    return (this.gross / 30 / 3 * 2 * 98).toFixed(0);
+    var $twins = $('[data-id="inputTwins"]');
+    var days = $twins.prop('checked') ? 98 + 56 : 98;
+
+    return (this.gross / 30 / 3 * 2 * days).toFixed(0);
 };
 
 Ikusim.Papa.prototype.getSumHometake = function() {
@@ -413,6 +452,14 @@ Ikusim.Papa.prototype.getSumHometake = function() {
 Ikusim.Papa.prototype.getSumSpendTime = function() {
     return this.worktime * 20 * this.plan;
     // return this.papamama === "papa" ? this.worktime * 20 * this.plan : this.worktime * 20 * (this.plan - 2);
+};
+
+Ikusim.Papa.prototype.getSumSpendTimeNoWorked = function() {
+    return (24 - 8) * 20 * this.plan;
+};
+
+Ikusim.Papa.prototype.getSumSpendTimeWorked = function() {
+    return (24 - 8 - this.worktime) * 20 * this.plan;
 };
 
 Ikusim.Papa.prototype.getPerBenefit = function() {
@@ -438,7 +485,13 @@ Ikusim.Papa.prototype.changePlan = function() {
 
 Ikusim.Papa.prototype.changeSumBenefit = function() {
     var $sumBenefit = $('[data-id="kyufu"]');
+    var $sankyuBenefit = $('[data-id="sankyuKyufu"]');
     $sumBenefit.html(Ikusim.util.yen(this.getSumBenefit()));
+    if(this.papamama === "mama") {
+        $sankyuBenefit.html('さらに出産手当金が' + Ikusim.util.yen(this.getSumSankyuBenefit()) + 'もらえます。');
+    } else {
+        $sankyuBenefit.html();
+    }
 };
 
 Ikusim.Papa.prototype.changePerBenefit = function() {
@@ -454,6 +507,14 @@ Ikusim.Papa.prototype.changeSumSpendTime = function() {
     $childTime.html(this.getSumSpendTime());
     $childTimeDay.html(this.getSumSpendTime() / 24);
     $workTime.html(this.worktime);
+};
+
+Ikusim.Papa.prototype.changeURL = function() {
+    var $twitter = $('[data-id="twitterIntentLink"]');
+    var $line = $('[data-id="lineIntentLink"]');
+
+    $twitter.attr('href', Ikusim.util.twitterUrl(this.getStartDate().format("YY/M/D"), this.getEndDate().format("YY/M/D"), this.plan, this.getPerBenefit(), this.getSumSpendTime()));
+    $line.attr('href', Ikusim.util.lineUrl(this.getStartDate().format("YY年M月D日"), this.getEndDate().format("YY年M月D日"), this.plan, this.getPerBenefit(), this.getSumSpendTime()));
 };
 
 Ikusim.Papa.prototype.getBenefitData = function() {
@@ -562,7 +623,7 @@ Ikusim.Papa.prototype.getBenefitDifData = function() {
         // これらのラベルは凡例とツールチップに表示されます。
         labels: [
             '育児休業給付金',
-            '減るお金'
+            '減る手取り'
         ]
     };
 };
@@ -572,9 +633,9 @@ Ikusim.Papa.prototype.getSpendTimeDifData = function() {
         datasets: [
             {
                 label: '子どもと過ごす時間',
-                data: [(24 - 8 - this.worktime) * 20 * this.plan, (24 - 8) * 20 * this.plan],
-                borderColor : ["#dddddd", this.mainColor],
-                backgroundColor : ["#dddddd", this.mainColor]
+                data: [this.getSumSpendTimeNoWorked(), this.getSumSpendTimeWorked()],
+                borderColor : [this.mainColor, "#dddddd"],
+                backgroundColor : [this.mainColor, "#dddddd"]
             }
         ],
         labels: ['休まない','休む']
